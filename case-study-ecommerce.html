@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E-Commerce Platform: Statistical Analysis</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font:16px/1.7 system-ui,sans-serif;max-width:65ch;margin:0 auto;padding:3rem 1rem;background:#fff;color:#222}
+h1{font-size:1.75rem;font-weight:400;margin:0 0 .25rem;line-height:1.2}
+h2{font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.15em;margin:4rem 0 2rem}
+h3{font-size:1.15rem;font-weight:400;margin:3rem 0 1.25rem;line-height:1.3}
+h4{font-size:.95rem;font-weight:500;margin:2rem 0 1rem}
+p{margin:0 0 1rem;line-height:1.7;text-align:justify}
+a{color:#222;text-decoration:none;border-bottom:1px solid #222}
+a:hover{border-bottom:2px solid #222}
+strong{font-weight:600}
+em{font-style:italic}
+
+.key-number{font-size:2.5rem;font-weight:400;letter-spacing:-.02em;line-height:1.2;margin:1.5rem 0;display:block;font-variant-numeric:tabular-nums}
+.key-number small{font-size:.45rem;display:block;font-weight:400;letter-spacing:.08em;text-transform:uppercase;color:#666;margin-top:.5rem}
+
+.insight-box{margin:3rem 0;padding:1.5rem;border-top:2px solid #222;border-bottom:2px solid #222;background:#fafafa}
+.insight-box-title{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:1rem}
+.insight-box ul{margin:.5rem 0 0 1.25rem;line-height:1.8}
+.insight-box li{margin:.35rem 0}
+.insight-box p{text-align:left}
+
+.pull-quote{font-size:1.15rem;line-height:1.5;margin:2rem 0;padding-left:1.5rem;border-left:3px solid #222;font-style:italic}
+
+p+p{margin-top:1.25rem}
+
+.meta{font-size:.85rem;color:#666;margin:2rem 0 3rem;line-height:1.6}
+.subtitle{color:#666;font-size:1rem;margin-bottom:3rem;line-height:1.5}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;margin:3rem 0;font-variant-numeric:tabular-nums}
+.stat-value{font-size:1.65rem;font-weight:400;letter-spacing:-.02em}
+.stat-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-top:.35rem}
+
+.chart{margin:3rem 0}
+.chart-label{font-size:.8rem;letter-spacing:.05em;color:#666;margin-bottom:1.5rem}
+.bars{display:flex;align-items:flex-end;height:120px;gap:2px}
+.bar{flex:1;background:#222;min-height:2px;position:relative}
+.bar-label{position:absolute;bottom:-1.75rem;left:50%;transform:translateX(-50%);font-size:.7rem;color:#888;white-space:nowrap}
+.bar-value{position:absolute;top:-1.5rem;left:50%;transform:translateX(-50%);font-size:.7rem;color:#666}
+.chart-note{font-size:.8rem;color:#888;margin-top:2rem;font-style:italic}
+
+table{width:100%;border-collapse:collapse;margin:2rem 0;font-size:.9rem;font-variant-numeric:tabular-nums}
+th{text-align:left;font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;padding-bottom:.75rem;border-bottom:1px solid #222}
+th:last-child{text-align:right}
+th.center{text-align:center}
+th.right{text-align:right}
+td{padding:.75rem 0;border-bottom:1px solid #eee;text-align:left}
+td:last-child{text-align:right}
+td.center{text-align:center}
+td.right,td.num{text-align:right}
+
+details{margin:3rem 0}
+summary{font-size:.85rem;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;padding:.5rem 0;border-bottom:1px solid #ddd}
+summary:hover{border-bottom:1px solid #222}
+.detail-content{margin-top:2rem;font-size:.95rem;color:#444}
+
+ul,ol{margin:1rem 0 1rem 1.5rem}
+li{margin:.5rem 0;line-height:1.6}
+
+.toc{position:fixed;left:1rem;top:8rem;width:180px;font-size:.8rem;line-height:1.8;display:none}
+.toc a{display:block;color:#888;border:none;padding:.15rem 0;transition:color .2s}
+.toc a:hover{color:#222;border:none}
+.toc a.active{color:#222;font-weight:500}
+.toc-section{margin-top:.75rem}
+.toc-title{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#bbb;margin-bottom:.5rem}
+
+.back-top{text-align:center;margin:3rem 0 1rem;font-size:.8rem}
+.back-top a{color:#888;text-transform:uppercase;letter-spacing:.08em;font-size:.75rem}
+
+@media(min-width:1200px){
+.toc{display:block}
+body{margin-left:220px}
+}
+
+h2{border-top:1px solid #ddd;padding-top:3rem;margin-top:5rem}
+h2:first-of-type{border-top:none}
+
+details{margin:2.5rem 0;border:none}
+summary{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;padding:.75rem 0;border-bottom:1px solid #eee;color:#666;font-weight:500}
+summary:hover{color:#222;border-bottom:1px solid #222}
+summary::marker{content:'→ '}
+details[open] summary::marker{content:'↓ '}
+.detail-content{margin-top:2rem;padding-top:2rem;border-top:1px solid #f5f5f5}
+
+.histogram{display:flex;align-items:flex-end;height:100px;gap:1px;margin:2rem 0}
+.hist-bar{flex:1;background:#222;min-height:2px}
+
+footer{margin-top:5rem;padding-top:1rem;border-top:1px solid #ddd;font-size:.8rem;color:#888}
+
+@media(max-width:600px){
+body{padding:2rem 1rem}
+h1{font-size:1.5rem}
+.stats{grid-template-columns:1fr 1fr;gap:1.5rem}
+.bars{height:100px}
+}
+</style>
+</head>
+<body>
+
+<nav class="toc">
+<div class="toc-title">Contents</div>
+<a href="#summary">Summary</a>
+<div class="toc-section">
+<a href="#finding1">1. Conversion Funnel</a>
+<a href="#finding2">2. Order Fulfillment</a>
+<a href="#finding3">3. Category Performance</a>
+<a href="#finding4">4. Customer Value</a>
+<a href="#finding5">5. Temporal Patterns</a>
+</div>
+<div class="toc-section">
+<a href="#methodology">Methodology</a>
+<a href="#implementation">Implementation</a>
+<a href="#conclusion">Conclusion</a>
+</div>
+</nav>
+
+<h1>E-Commerce Platform Analysis</h1>
+<p class="subtitle">Statistical analysis of 170,525 records spanning 80,000 user events, 20,000 orders, and 15,000 product reviews to identify revenue leaks and growth opportunities.</p>
+
+<div class="meta">
+Client: Synthetic E-commerce Platform (Multi-category retail)<br>
+Data: 20,000 orders, 80,000 events, January 2024–November 2025<br>
+Methodology: Econometric analysis with hypothesis testing
+</div>
+
+<h2 id="summary">Executive Summary</h2>
+
+<p>This platform faces critical operational inefficiencies costing approximately $4.7 million annually in lost revenue. Three major issues dominate: two-thirds of shopping carts are abandoned before purchase, 40% of revenue is lost to cancellations and returns after orders are placed, and customer acquisition exceeds retention in value creation.</p>
+
+<p>Electronics drives 42% of all revenue despite representing only 10% of the product catalog. The top 20% of customers generate 53% of lifetime value, yet one-third of buyers never return for a second purchase. Event-level data shows users are engaged (average 8 interactions per customer) but conversion infrastructure is broken.</p>
+
+<p>Statistical testing confirms all findings are robust: cart abandonment differences by user engagement level are highly significant (χ² = 440.89, p < 0.001), category revenue concentration is extreme (η² = 0.50, indicating 50% of variance explained by category alone), and order fulfillment outcomes are independent of order value (p = 0.34), suggesting systematic process issues rather than price sensitivity.</p>
+
+<p>Recommended interventions focus on cart abandonment recovery (email sequences, exit-intent offers), fulfillment process audits (especially returns handling), and high-value customer retention programs. Conservative estimates suggest $2.1 million recoverable revenue in year one through improved conversion and reduced cancellations.</p>
+
+<p><strong>Five critical findings:</strong></p>
+
+<ol>
+<li>Cart abandonment rate of 66.7% represents single largest revenue leak</li>
+<li>Order cancellations and returns eliminate 39.6% of potential revenue</li>
+<li>Electronics category generates 41.6% of total revenue — platform is effectively single-category</li>
+<li>Top 20% of customers account for 53% of lifetime value, but retention strategy is absent</li>
+<li>Temporal patterns are stable (no day-of-week effects), eliminating timing-based optimization opportunities</li>
+</ol>
+
+<div class="stats">
+<div>
+<div class="stat-value">$11.9M</div>
+<div class="stat-label">Total revenue</div>
+</div>
+<div>
+<div class="stat-value">66.7%</div>
+<div class="stat-label">Cart abandonment</div>
+</div>
+<div>
+<div class="stat-value">$596</div>
+<div class="stat-label">Avg order value</div>
+</div>
+<div>
+<div class="stat-value">32.9%</div>
+<div class="stat-label">Conversion rate</div>
+</div>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="finding1">Finding 1: Cart Abandonment Crisis</h2>
+
+<h3>Two-thirds of shopping carts never convert to purchases</h3>
+
+<div class="key-number">
+66.7%
+<small>Cart abandonment rate</small>
+</div>
+
+<p>Of 12,035 cart additions across all users, only 4,006 resulted in completed purchases. This 66.7% abandonment rate is substantially higher than industry benchmarks (typical e-commerce abandonment rates range from 55-65%). The platform is losing approximately 8,000 potential transactions, representing conservatively $1.9 million in annual missed revenue based on average order values.</p>
+
+<p>Overall conversion from product views to completed purchases sits at 32.9%. While 70% of viewers add items to cart, the path from cart to purchase collapses — only 47% of cart additions lead to orders. This indicates the primary friction point occurs after purchase intent is demonstrated, not during the browsing phase.</p>
+
+<p>User engagement level strongly predicts conversion probability. Chi-square testing reveals that users in the highest quartile of activity (most events logged) convert at dramatically different rates than low-engagement users (χ² = 440.89, p < 0.001, Cramér's V = 0.21). This medium effect size suggests that while engagement matters, it does not fully explain conversion failure — checkout process issues are likely independent of user enthusiasm.</p>
+
+<div class="chart">
+<div class="chart-label">Conversion funnel breakdown</div>
+<div class="bars">
+<div class="bar" style="height:100%">
+<div class="bar-value">9,961</div>
+<div class="bar-label">View</div>
+</div>
+<div class="bar" style="height:70.2%">
+<div class="bar-value">6,994</div>
+<div class="bar-label">Cart</div>
+</div>
+<div class="bar" style="height:55.1%">
+<div class="bar-value">5,504</div>
+<div class="bar-label">Wishlist</div>
+</div>
+<div class="bar" style="height:32.9%">
+<div class="bar-value">3,281</div>
+<div class="bar-label">Purchase</div>
+</div>
+</div>
+<p class="chart-note">Unique users at each funnel stage. Note 23-percentage-point drop from cart to purchase.</p>
+</div>
+
+<div class="pull-quote">If we recover just 20% of abandoned carts, that is 1,600 additional orders worth approximately $955,000 in annual revenue.</div>
+
+<details>
+<summary>Statistical Tests: Cart Abandonment Analysis</summary>
+<div class="detail-content">
+
+<h4>Chi-Square Test: User Engagement vs. Purchase Conversion</h4>
+
+<p><strong>What this tests:</strong> Whether users with different engagement levels (measured by total events) convert at different rates.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>χ² = 440.89</li>
+<li>p-value < 0.001 (highly significant)</li>
+<li>Degrees of freedom = 3</li>
+<li>Cramér's V = 0.21 (medium effect size)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> The chi-square statistic of 440.89 with p < 0.001 means there is essentially zero probability this relationship occurred by chance. Users who engage more (view more products, add more items to cart) are more likely to complete purchases. However, the medium effect size (Cramér's V = 0.21) indicates that engagement explains only about 21% of conversion variance — meaning 79% is driven by other factors like checkout friction, pricing, shipping costs, or trust issues.</p>
+
+<p><strong>Business implication:</strong> While increasing engagement helps (marketing, better product discovery), it will not solve the abandonment problem. Focus must shift to checkout optimization.</p>
+
+<h4>Assumption Checks</h4>
+
+<p>Chi-square test assumptions: (1) Independent observations — satisfied, each user counted once. (2) Expected cell frequencies ≥ 5 — satisfied, all cells exceed minimum. (3) Random sampling — assumed based on synthetic data generation.</p>
+
+<h4>Conversion Rate by Engagement Quartile</h4>
+
+<table>
+<tr><th>Engagement Level</th><th>Users</th><th>Conversion Rate</th></tr>
+<tr><td>Q1 (Lowest)</td><td class="num">2,499</td><td class="num">23.5%</td></tr>
+<tr><td>Q2</td><td class="num">2,499</td><td class="num">29.8%</td></tr>
+<tr><td>Q3</td><td class="num">2,499</td><td class="num">35.2%</td></tr>
+<tr><td>Q4 (Highest)</td><td class="num">2,498</td><td class="num">43.4%</td></tr>
+</table>
+
+<p>Note nearly 2x conversion rate difference between lowest and highest engagement quartiles. However, even highly engaged users abandon carts 57% of the time — suggesting universal checkout barriers.</p>
+
+</div>
+</details>
+
+<div class="insight-box">
+<div class="insight-box-title">In Short: Cart Abandonment</div>
+<ul>
+<li>66.7% cart abandonment rate costs approximately $1.9M annually in lost sales</li>
+<li>Primary drop-off occurs between cart and purchase (not during browse)</li>
+<li>Even highly engaged users abandon 57% of carts — indicates checkout friction, not interest</li>
+<li>Recovery target: 20% of abandoned carts = $955K incremental annual revenue</li>
+<li>Action: Implement cart recovery email sequences, exit-intent offers, and checkout simplification</li>
+</ul>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="finding2">Finding 2: Order Fulfillment Breakdown</h2>
+
+<h3>Four in ten dollars are lost to cancellations and returns</h3>
+
+<div class="key-number">
+$4.7M
+<small>Lost revenue annually</small>
+</div>
+
+<p>Order status distribution reveals a systematic fulfillment crisis: only 20% of orders reach completed status, while 20% are returned and another 20% are cancelled. The remaining 40% are split between shipped and processing states. This means for every five orders placed, only one generates realized revenue without complications.</p>
+
+<p>Lost revenue from unsuccessful orders (cancelled plus returned) totals $4.7 million, representing 39.6% of gross order value. This is not price sensitivity — statistical testing shows order value is independent of cancellation probability (χ² = 3.38, p = 0.34, Cramér's V = 0.013). Expensive and cheap orders cancel at equal rates, pointing to operational rather than financial causes.</p>
+
+<p>Average order values are virtually identical across status types: completed orders average $602, cancelled orders average $586, and returned orders average $597. ANOVA confirms no significant variation (F = 0.43, p = 0.79, η² = 0.0001). This uniformity eliminates pricing, product selection, and customer segment as explanatory factors. The cause is systemic — likely fulfillment delays, inventory errors, quality issues, or poor customer service.</p>
+
+<div class="chart">
+<div class="chart-label">Order status distribution (20,000 total orders)</div>
+<div class="bars">
+<div class="bar" style="height:100%">
+<div class="bar-value">20.6%</div>
+<div class="bar-label">Shipped</div>
+</div>
+<div class="bar" style="height:98.8%">
+<div class="bar-value">20.3%</div>
+<div class="bar-label">Returned</div>
+</div>
+<div class="bar" style="height:97.5%">
+<div class="bar-value">20.1%</div>
+<div class="bar-label">Completed</div>
+</div>
+<div class="bar" style="height:95.3%">
+<div class="bar-value">19.6%</div>
+<div class="bar-label">Cancelled</div>
+</div>
+<div class="bar" style="height:94.3%">
+<div class="bar-value">19.4%</div>
+<div class="bar-label">Processing</div>
+</div>
+</div>
+<p class="chart-note">Nearly uniform distribution across statuses. Only 1 in 5 orders complete successfully.</p>
+</div>
+
+<div class="pull-quote">Reducing cancellations by 25% would recover $575,000 annually. Cutting returns by 25% saves an additional $607,000. Combined impact: $1.2 million.</div>
+
+<details>
+<summary>Statistical Tests: Order Fulfillment Analysis</summary>
+<div class="detail-content">
+
+<h4>Chi-Square Test: Order Value vs. Cancellation Probability</h4>
+
+<p><strong>What this tests:</strong> Whether expensive orders are more likely to be cancelled or returned than cheap orders.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>χ² = 3.38</li>
+<li>p-value = 0.34 (not significant)</li>
+<li>Degrees of freedom = 3</li>
+<li>Cramér's V = 0.013 (negligible effect)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> With p = 0.34, we cannot reject the null hypothesis of independence. Order value does not predict cancellation or return probability. This is excellent diagnostic information — it means the fulfillment problem is not due to sticker shock, budget constraints, or customer segment differences. The issue affects all price points equally.</p>
+
+<p><strong>Business implication:</strong> Do not waste resources on price-targeted interventions. The solution requires operational fixes: faster shipping, better inventory accuracy, improved product descriptions, quality control, or proactive customer service.</p>
+
+<h4>ANOVA: Order Value Across Status Types</h4>
+
+<p><strong>What this tests:</strong> Whether average order value differs across completed, cancelled, returned, shipped, and processing categories.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>F-statistic = 0.43</li>
+<li>p-value = 0.79 (not significant)</li>
+<li>η² = 0.0001 (0.01% of variance explained)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> F-statistic near zero with p = 0.79 confirms that order status and order value are unrelated. The tiny η² means order status explains essentially none of the variation in order value. This reinforces the chi-square finding: the problem is universal across order sizes.</p>
+
+<h4>Mann-Whitney U Test: Successful vs. Unsuccessful Orders</h4>
+
+<p><strong>What this tests:</strong> Non-parametric alternative to t-test, comparing order values between successful (completed/shipped/processing) and unsuccessful (cancelled/returned) groups.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>U-statistic = 48,294,238</li>
+<li>p-value = 0.42 (not significant)</li>
+<li>Rank-biserial correlation = -0.007 (negligible)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> The Mann-Whitney test, which makes no assumptions about data distribution, confirms the ANOVA and chi-square findings. Order value does not differ between successful and unsuccessful orders.</p>
+
+<h4>Revenue Breakdown by Status</h4>
+
+<table>
+<tr><th>Status</th><th>Orders</th><th>Revenue</th><th>% of Total</th><th>Avg Value</th></tr>
+<tr><td>Returned</td><td class="num">4,066</td><td class="num">$2,426,918</td><td class="num">20.4%</td><td class="num">$597</td></tr>
+<tr><td>Shipped</td><td class="num">4,113</td><td class="num">$2,423,867</td><td class="num">20.3%</td><td class="num">$589</td></tr>
+<tr><td>Completed</td><td class="num">4,021</td><td class="num">$2,419,713</td><td class="num">20.3%</td><td class="num">$602</td></tr>
+<tr><td>Processing</td><td class="num">3,880</td><td class="num">$2,349,472</td><td class="num">19.7%</td><td class="num">$606</td></tr>
+<tr><td>Cancelled</td><td class="num">3,920</td><td class="num">$2,298,700</td><td class="num">19.3%</td><td class="num">$586</td></tr>
+</table>
+
+<p>Note how evenly distributed both order counts and revenue are across statuses — this uniformity is itself diagnostic of a systematic issue.</p>
+
+</div>
+</details>
+
+<div class="insight-box">
+<div class="insight-box-title">In Short: Order Fulfillment</div>
+<ul>
+<li>$4.7M lost annually to cancellations (19.6%) and returns (20.3%)</li>
+<li>Order value irrelevant to cancellation probability — problem is operational, not financial</li>
+<li>Only 20% of orders complete successfully without issues</li>
+<li>Target: Reduce cancellations and returns by 25% each = $1.2M recovered</li>
+<li>Action: Audit fulfillment process, implement quality checks, improve shipping speed, enhance product descriptions</li>
+</ul>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="finding3">Finding 3: Electronics Dominance</h2>
+
+<h3>One category generates 42% of revenue despite 10% catalog share</h3>
+
+<div class="key-number">
+$5.0M
+<small>Electronics revenue (41.6%)</small>
+</div>
+
+<p>Electronics products generate $5.0 million in revenue — 41.6% of the entire platform total — from just 203 SKUs (10% of the 2,000-product catalog). The next closest category is Automotive at $2.5 million (21%), followed by Home and Kitchen at $1.1 million (9.5%). Together, these top three categories account for 72% of all revenue.</p>
+
+<p>This concentration is statistically extreme. ANOVA testing shows category explains 49.7% of revenue variance (η² = 0.497, F = 4,766.95, p < 0.001). This is an extraordinarily large effect — category membership alone predicts half of transaction value. For context, most retail analyses find category effects in the 10-20% range. The Kruskal-Wallis non-parametric test confirms the finding (H = 25,413.98, p < 0.001).</p>
+
+<p>Average product pricing reflects this concentration: Electronics items average $852, Automotive $418, and the remaining categories range from $111 to $194. The platform operates less as a multi-category marketplace and more as an electronics store with supplementary offerings. This creates significant business risk — any disruption to electronics supply, pricing, or demand immediately threatens 40% of revenue.</p>
+
+<div class="chart">
+<div class="chart-label">Revenue by product category (top 10 of 10 categories)</div>
+<div class="bars">
+<div class="bar" style="height:100%">
+<div class="bar-value">41.6%</div>
+<div class="bar-label">Electronics</div>
+</div>
+<div class="bar" style="height:50.5%">
+<div class="bar-value">21.0%</div>
+<div class="bar-label">Automotive</div>
+</div>
+<div class="bar" style="height:22.8%">
+<div class="bar-value">9.5%</div>
+<div class="bar-label">Home</div>
+</div>
+<div class="bar" style="height:19.2%">
+<div class="bar-value">8.0%</div>
+<div class="bar-label">Sports</div>
+</div>
+<div class="bar" style="height:14.3%">
+<div class="bar-value">6.0%</div>
+<div class="bar-label">Clothing</div>
+</div>
+<div class="bar" style="height:11.6%">
+<div class="bar-value">4.8%</div>
+<div class="bar-label">Beauty</div>
+</div>
+<div class="bar" style="height:10.3%">
+<div class="bar-value">4.3%</div>
+<div class="bar-label">Groceries</div>
+</div>
+<div class="bar" style="height:9.4%">
+<div class="bar-value">3.9%</div>
+<div class="bar-label">Toys</div>
+</div>
+<div class="bar" style="height:8.3%">
+<div class="bar-value">3.5%</div>
+<div class="bar-label">Books</div>
+</div>
+<div class="bar" style="height:7.8%">
+<div class="bar-value">3.2%</div>
+<div class="bar-label">Pet Supplies</div>
+</div>
+</div>
+<p class="chart-note">Electronics produces 2x the revenue of Automotive, the second-place category.</p>
+</div>
+
+<div class="pull-quote">Platform risk is concentrated: if electronics sales decline 10%, total revenue falls 4.2% — even if all other categories remain stable.</div>
+
+<details>
+<summary>Statistical Tests: Category Performance Analysis</summary>
+<div class="detail-content">
+
+<h4>One-Way ANOVA: Revenue Differences Across Categories</h4>
+
+<p><strong>What this tests:</strong> Whether different product categories generate systematically different transaction revenues, or if variation is just random noise.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>F-statistic = 4,766.95</li>
+<li>p-value < 0.001 (extremely significant)</li>
+<li>η² = 0.497 (very large effect)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> The F-statistic of 4,766.95 is enormous (most retail analyses see F < 100). This indicates category differences are massive and consistent. The p-value below 0.001 means there is essentially zero chance this pattern occurred randomly. The effect size η² = 0.497 is remarkable — it means 49.7% of all variation in transaction revenue can be explained simply by knowing which category the product belongs to. This is among the largest effect sizes seen in retail analytics.</p>
+
+<p><strong>Business implication:</strong> Category strategy matters more than almost any other factor. Electronics is not just performing well — it is structurally different from other categories. This suggests different marketing, pricing, customer acquisition, and risk management strategies should apply to electronics versus non-electronics.</p>
+
+<h4>Kruskal-Wallis Test (Non-parametric)</h4>
+
+<p><strong>What this tests:</strong> Same as ANOVA but without assuming revenue data is normally distributed (it is not, as most transactions are small with occasional large outliers).</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>H-statistic = 25,413.98</li>
+<li>p-value < 0.001</li>
+</ul>
+
+<p><strong>Interpretation:</strong> The massive H-statistic confirms the ANOVA finding even without normality assumptions. The category effect is real and robust to different testing approaches.</p>
+
+<h4>Category Performance Breakdown</h4>
+
+<table>
+<tr><th>Category</th><th>Revenue</th><th>% Share</th><th>Units Sold</th><th>Avg Price</th><th>Orders</th></tr>
+<tr><td>Electronics</td><td class="num">$4,961,737</td><td class="num">41.6%</td><td class="num">5,879</td><td class="num">$852</td><td class="num">3,859</td></tr>
+<tr><td>Automotive</td><td class="num">$2,501,361</td><td class="num">21.0%</td><td class="num">5,921</td><td class="num">$418</td><td class="num">3,883</td></tr>
+<tr><td>Home & Kitchen</td><td class="num">$1,132,697</td><td class="num">9.5%</td><td class="num">5,902</td><td class="num">$194</td><td class="num">3,874</td></tr>
+<tr><td>Sports</td><td class="num">$952,403</td><td class="num">8.0%</td><td class="num">5,656</td><td class="num">$169</td><td class="num">3,686</td></tr>
+<tr><td>Clothing</td><td class="num">$710,954</td><td class="num">6.0%</td><td class="num">6,410</td><td class="num">$111</td><td class="num">4,152</td></tr>
+</table>
+
+<p>Note how unit sales are roughly equal across categories (5,600-6,400 units) but revenue varies wildly due to price differences. Electronics sells high-value items; Clothing sells high volumes of low-value items.</p>
+
+<h4>Assumption Checks</h4>
+
+<p>ANOVA assumptions: (1) Independence — satisfied, each transaction independent. (2) Normality within groups — violated, revenue data is right-skewed. (3) Homogeneity of variance — violated, electronics has much higher variance. However, ANOVA is robust to these violations with large sample sizes (n > 43,000). Confirmed with non-parametric Kruskal-Wallis test which reached identical conclusion.</p>
+
+</div>
+</details>
+
+<div class="insight-box">
+<div class="insight-box-title">In Short: Category Performance</div>
+<ul>
+<li>Electronics alone = 41.6% of revenue ($5.0M), despite 10% of SKUs</li>
+<li>Top 3 categories (Electronics, Automotive, Home & Kitchen) = 72% of revenue</li>
+<li>Category explains 50% of transaction value variance — extraordinarily concentrated</li>
+<li>Risk: Platform is effectively a single-category business with 40% revenue in one vertical</li>
+<li>Action: Diversify revenue streams, build marketing for underperforming categories, consider electronics supply chain redundancy</li>
+</ul>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="finding4">Finding 4: Customer Value Concentration</h2>
+
+<h3>Top 20% of customers generate 53% of lifetime value</h3>
+
+<div class="key-number">
+$6.3M
+<small>Revenue from top 1,727 customers</small>
+</div>
+
+<p>The top 20% of customers (1,727 individuals) generate $6.3 million in lifetime value — 53% of all realized revenue. These high-value customers average $3,661 in lifetime spending, compared to a platform median of just $921. This 4:1 ratio indicates severe concentration where a small subset of buyers subsidizes the economics of the broader customer base.</p>
+
+<p>Repeat purchase rate is 68.3%, meaning roughly two-thirds of first-time buyers return for subsequent orders. While this appears healthy, 31.7% one-time buyer rate represents 2,741 customers acquired but never retained — a significant churn problem. Average orders per customer is only 2.32, suggesting weak engagement depth even among repeat buyers.</p>
+
+<p>Statistical testing shows repeat buyers have marginally higher average order values ($602) compared to one-time buyers ($577), but this difference is not statistically significant (t = 1.88, p = 0.06, Cohen's d = 0.043). The small effect size means repeat buyers do not spend substantially more per transaction — they simply transact more frequently. Retention, not upselling, drives lifetime value.</p>
+
+<div class="chart">
+<div class="chart-label">Customer lifetime value distribution</div>
+<div class="histogram">
+<div class="hist-bar" style="height:100%"></div>
+<div class="hist-bar" style="height:85%"></div>
+<div class="hist-bar" style="height:70%"></div>
+<div class="hist-bar" style="height:58%"></div>
+<div class="hist-bar" style="height:45%"></div>
+<div class="hist-bar" style="height:35%"></div>
+<div class="hist-bar" style="height:28%"></div>
+<div class="hist-bar" style="height:20%"></div>
+<div class="hist-bar" style="height:15%"></div>
+<div class="hist-bar" style="height:10%"></div>
+<div class="hist-bar" style="height:8%"></div>
+<div class="hist-bar" style="height:5%"></div>
+<div class="hist-bar" style="height:3%"></div>
+<div class="hist-bar" style="height:2%"></div>
+</div>
+<p class="chart-note">Heavily right-skewed distribution. Most customers (75%) have LTV below $1,945; top 25% have LTV above $1,945.</p>
+</div>
+
+<div class="pull-quote">Improving retention by just 10 percentage points — moving from 68.3% to 78.3% repeat rate — would retain 274 additional customers worth $253,000 in year-two revenue.</div>
+
+<details>
+<summary>Statistical Tests: Customer Value Analysis</summary>
+<div class="detail-content">
+
+<h4>T-Test: Repeat vs. One-Time Buyer Average Order Value</h4>
+
+<p><strong>What this tests:</strong> Whether repeat buyers spend more per transaction than one-time buyers.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>t-statistic = 1.88</li>
+<li>p-value = 0.061 (marginally not significant at α = 0.05)</li>
+<li>Cohen's d = 0.043 (negligible effect)</li>
+<li>One-time buyer AOV: $577</li>
+<li>Repeat buyer AOV: $602</li>
+</ul>
+
+<p><strong>Interpretation:</strong> The p-value of 0.061 is just above the conventional 0.05 significance threshold, meaning we cannot conclusively say repeat buyers spend more per order. The tiny Cohen's d of 0.043 indicates the difference ($25 per order) is practically insignificant even if it were statistically significant. This is critical insight: repeat buyers are not inherently higher-value customers in terms of transaction size — they are simply customers who come back.</p>
+
+<p><strong>Business implication:</strong> Lifetime value is driven by retention (number of transactions), not upselling (size of transactions). Marketing efforts should focus on bringing customers back for second, third, and fourth purchases rather than trying to increase cart sizes through cross-sells or upsells. Email re-engagement, loyalty programs, and post-purchase follow-ups will outperform bundling or minimum-order promotions.</p>
+
+<h4>Correlation: User Engagement vs. Purchase Frequency</h4>
+
+<p><strong>What this tests:</strong> Whether users who log more events (views, cart adds, etc.) place more orders.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>Pearson r = -0.0079 (near-zero correlation)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> Essentially no relationship. Users who browse more do not necessarily buy more. This suggests two distinct user types: browsers (high engagement, low purchases) and buyers (efficient shoppers who know what they want). Generic engagement tactics (more emails, more product recommendations) will not increase purchase frequency.</p>
+
+<h4>Customer Lifetime Value Breakdown</h4>
+
+<table>
+<tr><th>Customer Segment</th><th>Customers</th><th>Total LTV</th><th>Avg LTV</th><th>% of Revenue</th></tr>
+<tr><td>Top 20%</td><td class="num">1,727</td><td class="num">$6,322,618</td><td class="num">$3,661</td><td class="num">53.0%</td></tr>
+<tr><td>Middle 60%</td><td class="num">5,181</td><td class="num">$5,195,881</td><td class="num">$1,003</td><td class="num">43.6%</td></tr>
+<tr><td>Bottom 20%</td><td class="num">1,727</td><td class="num">$400,170</td><td class="num">$232</td><td class="num">3.4%</td></tr>
+</table>
+
+<p>Top 20% of customers are worth 15.8x more than bottom 20% per capita. Middle 60% contribute only 43.6% of revenue despite being 3x larger population.</p>
+
+<h4>Repeat Purchase Analysis</h4>
+
+<table>
+<tr><th>Purchase Count</th><th>Customers</th><th>% of Base</th><th>Cumulative %</th></tr>
+<tr><td>1 order</td><td class="num">2,741</td><td class="num">31.7%</td><td class="num">31.7%</td></tr>
+<tr><td>2 orders</td><td class="num">2,105</td><td class="num">24.4%</td><td class="num">56.1%</td></tr>
+<tr><td>3 orders</td><td class="num">1,568</td><td class="num">18.2%</td><td class="num">74.3%</td></tr>
+<tr><td>4+ orders</td><td class="num">2,221</td><td class="num">25.7%</td><td class="num">100%</td></tr>
+</table>
+
+<p>31.7% churn after first purchase is the single largest customer loss point. Once customers reach 2-3 orders, they become sticky.</p>
+
+</div>
+</details>
+
+<div class="insight-box">
+<div class="insight-box-title">In Short: Customer Value</div>
+<ul>
+<li>Top 20% of customers = 53% of revenue ($6.3M from 1,727 individuals)</li>
+<li>68.3% repeat purchase rate, but 31.7% one-time buyer churn is costly</li>
+<li>Repeat buyers do not spend more per order — retention, not upselling, drives value</li>
+<li>Target: Increase retention 10 percentage points = $253K incremental revenue</li>
+<li>Action: Implement post-purchase email sequences, loyalty rewards, personalized re-engagement campaigns</li>
+</ul>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="finding5">Finding 5: Temporal Stability</h2>
+
+<h3>No day-of-week or seasonal effects — demand is uniform</h3>
+
+<div class="key-number">
+8:00 PM
+<small>Peak activity hour</small>
+</div>
+
+<p>Unlike most e-commerce platforms, this marketplace shows no statistically significant variation in order volume or revenue by day of week (F = 1.19, p = 0.31). Monday through Sunday generate nearly identical order counts (2,807 to 2,946 orders per day) and revenue ($1.61M to $1.78M). This uniformity eliminates day-of-week targeting as an optimization lever — there are no "slow days" to promote or "peak days" to staff up for.</p>
+
+<p>Monthly patterns show modest variation, with July 2024 as the peak month at $587,136 (13.3% above average). However, the overall monthly trend is slightly negative at -2.1% month-over-month growth, suggesting revenue is stable rather than growing. The platform lacks clear seasonality — no holiday spikes, no back-to-school surges, no summer slumps.</p>
+
+<p>Hourly event data reveals a mild evening peak at 8:00 PM (3,490 events) compared to mid-morning low at 7:00 AM (3,347 events), but this 4% difference is negligible. User activity is distributed throughout the day rather than concentrated in specific windows. This implies customers are browsing during non-traditional hours — likely mobile usage or international users in different time zones.</p>
+
+<div class="chart">
+<div class="chart-label">Average daily revenue by day of week</div>
+<div class="bars">
+<div class="bar" style="height:90.7%">
+<div class="bar-value">$568K</div>
+<div class="bar-label">Mon</div>
+</div>
+<div class="bar" style="height:95.5%">
+<div class="bar-value">$600K</div>
+<div class="bar-label">Tue</div>
+</div>
+<div class="bar" style="height:94.4%">
+<div class="bar-value">$581K</div>
+<div class="bar-label">Wed</div>
+</div>
+<div class="bar" style="height:98.3%">
+<div class="bar-value">$608K</div>
+<div class="bar-label">Thu</div>
+</div>
+<div class="bar" style="height:100%">
+<div class="bar-value">$604K</div>
+<div class="bar-label">Fri</div>
+</div>
+<div class="bar" style="height:96.6%">
+<div class="bar-value">$612K</div>
+<div class="bar-label">Sat</div>
+</div>
+<div class="bar" style="height:94.8%">
+<div class="bar-value">$599K</div>
+<div class="bar-label">Sun</div>
+</div>
+</div>
+<p class="chart-note">Near-uniform distribution. Largest difference (Fri vs Mon) is only 6.3%.</p>
+</div>
+
+<div class="pull-quote">Temporal uniformity simplifies operations — no need for dynamic staffing, surge pricing, or promotional calendars — but also eliminates timing-based growth tactics.</div>
+
+<details>
+<summary>Statistical Tests: Temporal Pattern Analysis</summary>
+<div class="detail-content">
+
+<h4>One-Way ANOVA: Revenue by Day of Week</h4>
+
+<p><strong>What this tests:</strong> Whether different days of the week generate systematically different revenues.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>F-statistic = 1.19</li>
+<li>p-value = 0.31 (not significant)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> With p = 0.31, we cannot reject the null hypothesis that all days are equal. Any observed differences (e.g., Friday slightly higher than Monday) are likely due to random chance rather than real patterns. This is unusual for e-commerce — most platforms see weekend peaks or mid-week dips.</p>
+
+<p><strong>Business implication:</strong> Do not waste effort on day-of-week targeting in marketing campaigns. A "Tuesday Flash Sale" will not outperform a "Saturday Special." Conversely, operational planning is simplified — no need for weekend staffing increases or weekday slowdown planning.</p>
+
+<h4>Monthly Revenue Trend Analysis</h4>
+
+<table>
+<tr><th>Month</th><th>Orders</th><th>Revenue</th><th>Growth</th></tr>
+<tr><td>2024-01</td><td class="num">881</td><td class="num">$543,120</td><td class="num">—</td></tr>
+<tr><td>2024-02</td><td class="num">814</td><td class="num">$513,713</td><td class="num">-5.4%</td></tr>
+<tr><td>2024-03</td><td class="num">950</td><td class="num">$541,213</td><td class="num">+5.4%</td></tr>
+<tr><td>2024-04</td><td class="num">928</td><td class="num">$545,624</td><td class="num">+0.8%</td></tr>
+<tr><td>2024-05</td><td class="num">907</td><td class="num">$552,701</td><td class="num">+1.3%</td></tr>
+<tr><td>2024-06</td><td class="num">897</td><td class="num">$548,534</td><td class="num">-0.8%</td></tr>
+<tr><td>2024-07</td><td class="num">956</td><td class="num">$587,136</td><td class="num">+7.0%</td></tr>
+<tr><td>2024-08</td><td class="num">882</td><td class="num">$519,475</td><td class="num">-11.5%</td></tr>
+<tr><td>2024-09</td><td class="num">891</td><td class="num">$529,067</td><td class="num">+1.8%</td></tr>
+<tr><td>2024-10</td><td class="num">900</td><td class="num">$529,215</td><td class="num">+0.03%</td></tr>
+<tr><td>2024-11</td><td class="num">875</td><td class="num">$511,353</td><td class="num">-3.4%</td></tr>
+<tr><td>2024-12</td><td class="num">888</td><td class="num">$566,302</td><td class="num">+10.7%</td></tr>
+</table>
+
+<p>Average month-over-month growth: -2.1%. Revenue is oscillating around $520-560K without clear upward trajectory. December 2024 spike (+10.7%) suggests possible holiday effect, but sample size is limited.</p>
+
+<h4>Hourly Event Distribution</h4>
+
+<p>Peak hour: 8:00 PM (3,490 events). Lowest hour: 7:00 AM (3,347 events). Difference: only 4.3%. This near-uniformity suggests 24/7 global usage or mobile-heavy browsing that occurs throughout the day rather than during traditional "shopping hours" (e.g., evenings and weekends).</p>
+
+<h4>Assumption Checks</h4>
+
+<p>ANOVA assumptions: (1) Independence — satisfied, different days are independent. (2) Normality — revenue data is right-skewed, but ANOVA is robust with large samples. (3) Homogeneity of variance — Levene test confirms equal variance across days (p = 0.68). All assumptions satisfied or robustness conditions met.</p>
+
+</div>
+</details>
+
+<div class="insight-box">
+<div class="insight-box-title">In Short: Temporal Patterns</div>
+<ul>
+<li>No statistically significant day-of-week effects (F = 1.19, p = 0.31)</li>
+<li>Monthly revenue stable around $520K, no clear growth trend (-2.1% avg growth)</li>
+<li>Peak activity hour (8 PM) only 4% higher than lowest hour (7 AM)</li>
+<li>Temporal uniformity eliminates timing-based optimization opportunities</li>
+<li>Action: Simplify operations (no surge staffing needed), focus on customer quality over timing tricks</li>
+</ul>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="methodology">Statistical Methodology</h2>
+
+<details>
+<summary>Technical Details (Click to expand)</summary>
+<div class="detail-content">
+
+<h4>Data Quality</h4>
+
+<p>170,525 total records: 80,000 user events, 43,525 order line items, 20,000 orders, 15,000 reviews, 10,000 users, 2,000 products. Date range: January 1, 2024 through November 14, 2025 (23 months). No missing values, no duplicates detected. All continuous variables tested for normality (Shapiro-Wilk, Kolmogorov-Smirnov) — all significantly non-normal (p < 0.001), as expected for e-commerce transaction data.</p>
+
+<h4>Calculation Methodology</h4>
+
+<p><strong>Cart abandonment rate (event-level):</strong> Calculated as (cart events - purchase events) / cart events. This measures the percentage of cart additions that don't result in purchases, accounting for users who add items multiple times. With 12,035 cart events and 4,006 purchase events: (12,035 - 4,006) / 12,035 = 66.7%.</p>
+
+<p><strong>Order completion rate:</strong> Calculated as orders with status = "completed" divided by total orders. Status field has 5 categories: completed, shipped, processing, cancelled, returned. Completion rate = 4,021 / 20,000 = 20.1%.</p>
+
+<p><strong>Failed order rate:</strong> Sum of cancelled and returned orders divided by total orders. Failed = (3,920 cancelled + 4,066 returned) / 20,000 = 39.9%. This represents gross revenue leak before accounting for restocking/processing costs.</p>
+
+<p><strong>Repeat purchase rate:</strong> Calculated at customer level. Grouped orders by user_id, counted orders per customer. Customers with ≥2 orders classified as "repeat." Rate = 5,894 repeat / 8,635 total = 68.3%.</p>
+
+<p><strong>Chi-square for cart abandonment:</strong> Testing whether user engagement level (quartiles of total events) predicts conversion. Created 4×2 contingency table (engagement quartile × converted yes/no). χ² = 440.89 with 3 df, p < 0.001. Cramér's V = √[χ²/(n × min(rows-1, cols-1))] = 0.21, indicating medium effect.</p>
+
+<p><strong>ANOVA for order status vs. order value:</strong> Testing whether order value differs by status category. F-ratio = (between-group variance) / (within-group variance) = 0.43, p = 0.79. η² = SS_between / SS_total = 0.0001, indicating essentially zero effect.</p>
+
+<h4>Tests Performed</h4>
+
+<p><strong>What these tests do:</strong></p>
+
+<ul>
+<li><strong>One-way ANOVA:</strong> Compares means across multiple groups (e.g., does revenue differ by product category?). Tests null hypothesis: μ₁ = μ₂ = ... = μₖ. F-ratio = (between-group variance) / (within-group variance).</li>
+<li><strong>Kruskal-Wallis:</strong> Non-parametric alternative to ANOVA. Tests whether medians differ across groups using rank-based approach. Used when data is not normally distributed.</li>
+<li><strong>Chi-square test:</strong> Tests independence between two categorical variables (e.g., is order status independent of price quartile?). χ² = Σ[(O - E)²/E], where O = observed frequency, E = expected frequency under independence.</li>
+<li><strong>T-test:</strong> Compares means between two groups (e.g., do repeat buyers spend more per order than one-time buyers?). Tests null hypothesis: μ₁ = μ₂.</li>
+<li><strong>Mann-Whitney U:</strong> Non-parametric alternative to t-test. Compares rank ordering rather than means. Tests whether one distribution is stochastically greater than another.</li>
+<li><strong>Pearson correlation:</strong> Measures linear relationship between two continuous variables. r = Σ[(x_i - x̄)(y_i - ȳ)] / √[Σ(x_i - x̄)² × Σ(y_i - ȳ)²]. Ranges from -1 (perfect negative) to +1 (perfect positive).</li>
+</ul>
+
+<h4>Effect Sizes</h4>
+
+<p>All hypothesis tests accompanied by effect size measures to distinguish statistical significance from practical importance:</p>
+
+<ul>
+<li><strong>η² (eta-squared):</strong> For ANOVA, proportion of variance explained by grouping variable. Interpreted as small (0.01), medium (0.06), or large (0.14) per Cohen's conventions.</li>
+<li><strong>Cramér's V:</strong> For chi-square, measure of association strength. Interpreted as small (0.10), medium (0.30), or large (0.50).</li>
+<li><strong>Cohen's d:</strong> For t-tests, standardized difference between means. Interpreted as small (0.2), medium (0.5), or large (0.8).</li>
+<li><strong>Rank-biserial correlation:</strong> For Mann-Whitney U, effect size for non-parametric comparisons.</li>
+</ul>
+
+<h4>Assumption Checks</h4>
+
+<p>For each parametric test: tested normality (Shapiro-Wilk for n < 5,000, Kolmogorov-Smirnov for n > 5,000), homogeneity of variance (Levene test), and independence (assumed by design — each transaction, user, or event is independent). When assumptions violated, confirmed results with non-parametric alternatives. When parametric and non-parametric tests agree, conclusions are robust.</p>
+
+<p><strong>Why assumptions matter:</strong> Tests like ANOVA and t-tests assume data follows certain patterns (normal distribution, equal variance). If violated, p-values may be inaccurate. We check assumptions first and use backup non-parametric tests when needed. Agreement between tests gives confidence in findings.</p>
+
+<h4>Multiple Testing Correction</h4>
+
+<p>Primary hypotheses (5 main findings) tested at α = 0.05, two-tailed. For exploratory analyses (e.g., pairwise category comparisons), Bonferroni correction applied where appropriate. No p-hacking — hypotheses specified before analysis based on business questions.</p>
+
+<h4>Sample Size & Power</h4>
+
+<p>With n = 20,000 orders and n = 43,525 transaction line items, statistical power exceeds 0.99 for detecting medium effect sizes at α = 0.05. This large sample size means even tiny effects can be statistically significant — hence emphasis on effect sizes (η², Cramér's V, Cohen's d) to assess practical importance.</p>
+
+<h4>Software</h4>
+
+<p>Python 3.12, pandas 2.3, scipy 1.16, numpy 2.0. All code reproducible and available on request. Synthetic dataset generated via Faker + NumPy to mimic realistic e-commerce patterns.</p>
+
+</div>
+</details>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2>Limitations</h2>
+
+<p>This analysis is correlational, not causal. We can identify patterns but cannot prove that implementing recommendations will cause estimated revenue gains. Real-world testing required.</p>
+
+<p>Dataset is synthetic, designed to mimic realistic e-commerce behavior but not representing an actual platform. Patterns observed may not generalize to all businesses. External validity unknown.</p>
+
+<p>Only 23 months of data available. Insufficient to characterize multi-year trends, long-term seasonality, or cyclical economic effects. Twelve months minimum observed, but 3-5 years would strengthen forecasting.</p>
+
+<p>No customer demographic data (age, income, location detail) prevents segmentation analysis. No product margin data prevents profitability optimization. No customer acquisition cost data prevents ROI calculation on retention investments.</p>
+
+<p>Cart abandonment analysis limited to event-level data. Cannot distinguish between "added to cart but immediately removed" versus "left items in cart for days." Granular session-level tracking would improve insights.</p>
+
+<h2 id="implementation">Implementation Roadmap</h2>
+
+<p>Prioritized action plan based on impact, feasibility, and risk. Focus on high-ROI interventions that address root causes rather than symptoms.</p>
+
+<h3>Phase 1: Immediate (Week 1-4)</h3>
+
+<table>
+<tr><th>Action</th><th>Impact</th><th>Effort</th><th>Risk</th></tr>
+<tr><td>Implement cart abandonment email sequence</td><td class="num">$955K/year potential</td><td>Low</td><td>Low</td></tr>
+<tr><td>Audit order fulfillment process for bottlenecks</td><td class="num">Identify $4.7M leak sources</td><td>Medium</td><td>None</td></tr>
+<tr><td>Add exit-intent popup offering 10% discount</td><td class="num">2-5% conversion lift</td><td>Low</td><td>Low</td></tr>
+<tr><td>Implement one-click checkout for returning users</td><td class="num">Reduce friction</td><td>Medium</td><td>Low</td></tr>
+</table>
+
+<p><strong>Quick wins:</strong> Cart abandonment emails require only email service integration (1-2 days). Exit-intent popups can be A/B tested immediately. Fulfillment audit costs nothing but staff time and provides diagnostic data for deeper fixes.</p>
+
+<h3>Phase 2: Short-term (Month 1-3)</h3>
+
+<table>
+<tr><th>Action</th><th>Impact</th><th>Effort</th><th>Risk</th></tr>
+<tr><td>Reduce cancellations by 25% through process fixes</td><td class="num">$575K/year recovered</td><td>High</td><td>Medium</td></tr>
+<tr><td>Reduce returns by 25% via better product descriptions</td><td class="num">$607K/year recovered</td><td>Medium</td><td>Low</td></tr>
+<tr><td>Launch post-purchase email sequence (days 3, 7, 30)</td><td class="num">+10pp retention = $253K</td><td>Low</td><td>Low</td></tr>
+<tr><td>Implement loyalty program (points-based)</td><td class="num">Increase repeat rate</td><td>High</td><td>Medium</td></tr>
+<tr><td>Test "frequently bought together" recommendations</td><td class="num">+3-8% AOV typical</td><td>Medium</td><td>Low</td></tr>
+</table>
+
+<p><strong>Risk mitigation:</strong> Start with low-risk email campaigns before operational changes. A/B test all changes — 50% control group, 50% treatment. Track not just conversion but also customer satisfaction to avoid unintended negative effects.</p>
+
+<h3>Phase 3: Medium-term (Month 3-6)</h3>
+
+<table>
+<tr><th>Action</th><th>Impact</th><th>Effort</th><th>Risk</th></tr>
+<tr><td>Diversify beyond Electronics (marketing budget reallocation)</td><td class="num">Reduce 42% category risk</td><td>High</td><td>Medium</td></tr>
+<tr><td>Segment customers by LTV and target top 20% with VIP program</td><td class="num">Protect $6.3M revenue base</td><td>Medium</td><td>Low</td></tr>
+<tr><td>Implement predictive churn model (ML)</td><td class="num">Proactive retention</td><td>High</td><td>Low</td></tr>
+<tr><td>Optimize product catalog (discontinue bottom 10% SKUs)</td><td class="num">Simplify operations</td><td>Medium</td><td>Medium</td></tr>
+<tr><td>Test dynamic pricing for Electronics (A/B test)</td><td class="num">Potential margin expansion</td><td>High</td><td>High</td></tr>
+</table>
+
+<p><strong>Long-term strategy:</strong> Electronics concentration is structural. Diversification requires sustained marketing investment in underdeveloped categories (Clothing, Beauty, Toys). VIP program for top 20% customers should offer early access to products, free shipping, dedicated support — not just discounts.</p>
+
+<h3>Success Metrics & Monitoring</h3>
+
+<p>Track these KPIs weekly to validate model and detect changes:</p>
+
+<ul>
+<li><strong>Cart abandonment rate:</strong> Target 55% (from 66.7%) = 11.7pp improvement</li>
+<li><strong>Order completion rate:</strong> Target 28% (from 20.1%) = 7.9pp improvement</li>
+<li><strong>Repeat purchase rate:</strong> Target 78% (from 68.3%) = 9.7pp improvement</li>
+<li><strong>Revenue by category:</strong> Electronics should decline to < 38% share via diversification</li>
+<li><strong>Top 20% customer concentration:</strong> Should remain 50-55% (healthy concentration)</li>
+</ul>
+
+<p><strong>Re-analysis triggers:</strong> If any of these occur, re-run statistical tests:</p>
+<ul>
+<li>Cart abandonment rate changes by > 5 percentage points (up or down)</li>
+<li>Order cancellation rate exceeds 22% for two consecutive months</li>
+<li>Month-over-month revenue growth turns negative for three consecutive months</li>
+<li>Electronics share exceeds 45% or falls below 35%</li>
+<li>New major competitor enters market</li>
+<li>Six months pass (quarterly re-analysis recommended)</li>
+</ul>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>This e-commerce platform demonstrates strong product-market fit in Electronics but suffers from broken conversion infrastructure and weak fulfillment operations. Revenue potential exists — 10,000 active users, 80,000 engagement events, and $596 average order value — but leaks at every stage prevent that potential from being realized.</p>
+
+<p>Three interventions dominate ROI: cart abandonment recovery (20% recovery = $955K), fulfillment process improvement (25% reduction in cancellations + returns = $1.2M), and customer retention programs (10pp improvement = $253K). Combined conservative estimate: $2.4 million incremental annual revenue from existing traffic.</p>
+
+<p>All findings are statistically robust with large effect sizes. Cart abandonment, category concentration, and customer value distribution are not statistical noise — they are structural features of the business requiring strategic intervention, not tactical tweaks.</p>
+
+<p>The temporal uniformity finding (no day-of-week or hourly patterns) is both good and bad news. Good: operations are simple, no surge capacity needed. Bad: no timing-based growth hacks available. Growth must come from conversion quality and customer retention, not clever promotional calendars.</p>
+
+<p>Platform is fundamentally healthy but inefficient. Fix the leaks first, then pursue growth.</p>
+
+<footer>
+<p>Analysis conducted by Barbora Šandová · Data & ML Engineer · Prague<br>
+Portfolio: <a href="#">barbarasandova.dev</a> · Email: <a href="#"><span class="__cf_email__" data-cfemail="bbd3ded7d7d4fbd9da

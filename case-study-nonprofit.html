@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nonprofit Fundraising: Statistical Analysis</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font:16px/1.7 system-ui,sans-serif;max-width:65ch;margin:0 auto;padding:3rem 1rem;background:#fff;color:#222}
+h1{font-size:1.75rem;font-weight:400;margin:0 0 .25rem;line-height:1.2}
+h2{font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.15em;margin:4rem 0 2rem}
+h3{font-size:1.15rem;font-weight:400;margin:3rem 0 1.25rem;line-height:1.3}
+h4{font-size:.95rem;font-weight:500;margin:2rem 0 1rem}
+p{margin:0 0 1rem;line-height:1.7;text-align:justify}
+a{color:#222;text-decoration:none;border-bottom:1px solid #222}
+a:hover{border-bottom:2px solid #222}
+strong{font-weight:600}
+em{font-style:italic}
+
+.key-number{font-size:2.5rem;font-weight:400;letter-spacing:-.02em;line-height:1.2;margin:1.5rem 0;display:block;font-variant-numeric:tabular-nums}
+.key-number small{font-size:.45rem;display:block;font-weight:400;letter-spacing:.08em;text-transform:uppercase;color:#666;margin-top:.5rem}
+
+.insight-box{margin:3rem 0;padding:1.5rem;border-top:2px solid #222;border-bottom:2px solid #222;background:#fafafa}
+.insight-box-title{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:1rem}
+.insight-box ul{margin:.5rem 0 0 1.25rem;line-height:1.8}
+.insight-box li{margin:.35rem 0}
+.insight-box p{text-align:left}
+
+.pull-quote{font-size:1.15rem;line-height:1.5;margin:2rem 0;padding-left:1.5rem;border-left:3px solid #222;font-style:italic}
+
+p+p{margin-top:1.25rem}
+
+.meta{font-size:.85rem;color:#666;margin:2rem 0 3rem;line-height:1.6}
+.subtitle{color:#666;font-size:1rem;margin-bottom:3rem;line-height:1.5}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;margin:3rem 0;font-variant-numeric:tabular-nums}
+.stat-value{font-size:1.65rem;font-weight:400;letter-spacing:-.02em}
+.stat-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-top:.35rem}
+
+.chart{margin:3rem 0}
+.chart-label{font-size:.8rem;letter-spacing:.05em;color:#666;margin-bottom:1.5rem}
+.bars{display:flex;align-items:flex-end;height:120px;gap:2px}
+.bar{flex:1;background:#222;min-height:2px;position:relative}
+.bar-label{position:absolute;bottom:-1.75rem;left:50%;transform:translateX(-50%);font-size:.7rem;color:#888;white-space:nowrap}
+.bar-value{position:absolute;top:-1.5rem;left:50%;transform:translateX(-50%);font-size:.7rem;color:#666}
+.chart-note{font-size:.8rem;color:#888;margin-top:2rem;font-style:italic}
+
+table{width:100%;border-collapse:collapse;margin:2rem 0;font-size:.9rem;font-variant-numeric:tabular-nums}
+th{text-align:left;font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;padding-bottom:.75rem;border-bottom:1px solid #222}
+th:last-child{text-align:right}
+th.center{text-align:center}
+th.right{text-align:right}
+td{padding:.75rem 0;border-bottom:1px solid #eee;text-align:left}
+td:last-child{text-align:right}
+td.center{text-align:center}
+td.right,td.num{text-align:right}
+
+details{margin:3rem 0}
+summary{font-size:.85rem;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;padding:.5rem 0;border-bottom:1px solid #ddd}
+summary:hover{border-bottom:1px solid #222}
+.detail-content{margin-top:2rem;font-size:.95rem;color:#444}
+
+ul,ol{margin:1rem 0 1rem 1.5rem}
+li{margin:.5rem 0;line-height:1.6}
+
+.toc{position:fixed;left:1rem;top:8rem;width:180px;font-size:.8rem;line-height:1.8;display:none}
+.toc a{display:block;color:#888;border:none;padding:.15rem 0;transition:color .2s}
+.toc a:hover{color:#222;border:none}
+.toc a.active{color:#222;font-weight:500}
+.toc-section{margin-top:.75rem}
+.toc-title{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#bbb;margin-bottom:.5rem}
+
+.back-top{text-align:center;margin:3rem 0 1rem;font-size:.8rem}
+.back-top a{color:#888;text-transform:uppercase;letter-spacing:.08em;font-size:.75rem}
+
+@media(min-width:1200px){
+.toc{display:block}
+body{margin-left:220px}
+}
+
+h2{border-top:1px solid #ddd;padding-top:3rem;margin-top:5rem}
+h2:first-of-type{border-top:none}
+
+details{margin:2.5rem 0;border:none}
+summary{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;padding:.75rem 0;border-bottom:1px solid #eee;color:#666;font-weight:500}
+summary:hover{color:#222;border-bottom:1px solid #222}
+summary::marker{content:'→ '}
+details[open] summary::marker{content:'↓ '}
+.detail-content{margin-top:2rem;padding-top:2rem;border-top:1px solid #f5f5f5}
+
+.histogram{display:flex;align-items:flex-end;height:100px;gap:1px;margin:2rem 0}
+.hist-bar{flex:1;background:#222;min-height:2px}
+
+footer{margin-top:5rem;padding-top:1rem;border-top:1px solid #ddd;font-size:.8rem;color:#888}
+
+@media(max-width:600px){
+body{padding:2rem 1rem}
+h1{font-size:1.5rem}
+.stats{grid-template-columns:1fr 1fr;gap:1.5rem}
+.bars{height:100px}
+}
+</style>
+</head>
+<body>
+
+<nav class="toc">
+<div class="toc-title">Contents</div>
+<a href="#summary">Summary</a>
+<div class="toc-section">
+<a href="#finding1">1. Retention Crisis</a>
+<a href="#finding2">2. Wealth Disconnect</a>
+<a href="#finding3">3. Involvement Impact</a>
+<a href="#finding4">4. Contact Methods</a>
+<a href="#finding5">5. Segment Strategy</a>
+</div>
+<div class="toc-section">
+<a href="#methodology">Methodology</a>
+<a href="#implementation">Implementation</a>
+<a href="#conclusion">Conclusion</a>
+</div>
+</nav>
+
+<h1>Nonprofit Fundraising Analysis</h1>
+<p class="subtitle">Statistical analysis of 34,508 constituent records, 21,433 lifetime donors, and $81.6 million in historical giving to identify retention failures and revenue optimization opportunities.</p>
+
+<div class="meta">
+Client: Educational Institution / Nonprofit Organization<br>
+Data: 34,508 constituencies, 5 fiscal years, multiple donor segments<br>
+Methodology: Econometric analysis with hypothesis testing
+</div>
+
+<h2 id="summary">Executive Summary</h2>
+
+<p>This organization faces a critical donor retention crisis that overshadows all other fundraising challenges. Nearly half of all donors (49.1%) are lapsed — they gave historically but have not contributed in recent years. Only 7.9% of donors qualify as loyal supporters with five or more consecutive years of giving. The donor file is degrading faster than acquisition efforts can replace it.</p>
+
+<p>Lifetime value concentration is extreme: average donor LTV is $3,805 but median is only $100, indicating a small number of major gifts subsidizing thousands of small donors. The top performing segment — alumni with organizational involvement — generates an average $10,069 in lifetime value, while non-alumni without involvement contribute just $2,240. This 4.5:1 ratio suggests that engagement infrastructure, not fundraising tactics, determines outcomes.</p>
+
+<p>Wealth ratings prove nearly useless as predictive tools. Correlation between estimated wealth and actual giving is effectively zero (r = 0.0046), and ANOVA testing confirms wealth category membership explains only 0.34% of giving variance. The organization possesses 508 high-wealth prospects (rated above $100,000 capacity) who have given less than $1,000 lifetime — representing untapped potential if cultivation strategies improve.</p>
+
+<p>Contact report data reveals method-dependent success rates: in-person visits convert at 35.4%, phone calls at 27.8%, and emails at 25.0%. However, only 27% of logged contacts qualify as substantive donor interactions, suggesting significant administrative burden with limited strategic impact. Fundraiser productivity varies dramatically, with top performers logging 2-4x more contacts than colleagues.</p>
+
+<p><strong>Five critical findings:</strong></p>
+
+<ol>
+<li>49.1% lapsed donor rate represents systemic retention failure costing millions in potential renewal revenue</li>
+<li>Wealth screening does not predict giving — capacity ratings are decorative, not diagnostic</li>
+<li>Involvement drives 2.4x higher lifetime value and 2.7x better retention rates</li>
+<li>Contact method matters: visits outperform email by 10 percentage points</li>
+<li>Alumni with involvement are 4.5x more valuable than non-alumni without involvement</li>
+</ol>
+
+<div class="stats">
+<div>
+<div class="stat-value">$81.6M</div>
+<div class="stat-label">Lifetime giving</div>
+</div>
+<div>
+<div class="stat-value">49.1%</div>
+<div class="stat-label">Lapsed donors</div>
+</div>
+<div>
+<div class="stat-value">$3,805</div>
+<div class="stat-label">Avg donor LTV</div>
+</div>
+<div>
+<div class="stat-value">7.9%</div>
+<div class="stat-label">Loyal donors (5yr)</div>
+</div>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="finding1">Finding 1: Donor Retention Collapse</h2>
+
+<h3>Nearly half of all donors have lapsed — giving historically but not recently</h3>
+
+<div class="key-number">
+10,530
+<small>Lapsed donors (49.1% of donor file)</small>
+</div>
+
+<p>Among 21,433 lifetime donors, 10,530 have zero consecutive years of giving — they contributed at some point but are currently inactive. These lapsed donors represent 49.1% of the entire donor file, indicating the organization loses donors faster than it acquires or retains them. Average lifetime value of lapsed donors is $1,879, meaning approximately $19.8 million in historical giving capacity sits dormant.</p>
+
+<p>Active donors (those with one or more consecutive years) comprise only 50.9% of the file. Within this group, loyalty decreases sharply: 6,115 donors have given one consecutive year, 1,554 have given two consecutive years, and only 1,699 have achieved five or more consecutive years. The steep drop-off indicates that donor retention is not a late-stage problem but an immediate one — most donors churn within 1-2 years of first gift.</p>
+
+<p>Recent fiscal year trends show volatile giving patterns. Most recent year (FY-0) saw 2,369 donors contributing $13.0 million — dramatically higher than the prior four years which averaged 2,280 donors and $2.9 million. This spike suggests either a major campaign, an unusual event gift concentration, or data quality issues. Regardless of cause, year-over-year consistency is absent, making forecasting and budgeting unreliable.</p>
+
+<div class="chart">
+<div class="chart-label">Donor loyalty distribution (consecutive years of giving)</div>
+<div class="bars">
+<div class="bar" style="height:100%">
+<div class="bar-value">10,530</div>
+<div class="bar-label">0 years</div>
+</div>
+<div class="bar" style="height:58.1%">
+<div class="bar-value">6,115</div>
+<div class="bar-label">1 year</div>
+</div>
+<div class="bar" style="height:14.8%">
+<div class="bar-value">1,554</div>
+<div class="bar-label">2 years</div>
+</div>
+<div class="bar" style="height:9.8%">
+<div class="bar-value">1,033</div>
+<div class="bar-label">3 years</div>
+</div>
+<div class="bar" style="height:6.6%">
+<div class="bar-value">694</div>
+<div class="bar-label">4 years</div>
+</div>
+<div class="bar" style="height:16.1%">
+<div class="bar-value">1,699</div>
+<div class="bar-label">5+ years</div>
+</div>
+</div>
+<p class="chart-note">Majority of donors (49%) are lapsed. Only 7.9% qualify as loyal (5+ consecutive years).</p>
+</div>
+
+<div class="pull-quote">If we reactivate just 20% of lapsed donors at their historical average ($1,879), that represents $3.96 million in recovered annual giving.</div>
+
+<details>
+<summary>Statistical Tests: Donor Retention Analysis</summary>
+<div class="detail-content">
+
+<h4>Consecutive Years Distribution</h4>
+
+<p><strong>What this shows:</strong> How many donors fall into each loyalty category based on consecutive years of giving (CON_YEARS field).</p>
+
+<table>
+<tr><th>Consecutive Years</th><th>Donors</th><th>% of File</th><th>Cumulative %</th></tr>
+<tr><td>0 (Lapsed)</td><td class="num">10,530</td><td class="num">49.1%</td><td class="num">49.1%</td></tr>
+<tr><td>1 year</td><td class="num">6,115</td><td class="num">28.5%</td><td class="num">77.6%</td></tr>
+<tr><td>2 years</td><td class="num">1,554</td><td class="num">7.2%</td><td class="num">84.9%</td></tr>
+<tr><td>3 years</td><td class="num">1,033</td><td class="num">4.8%</td><td class="num">89.7%</td></tr>
+<tr><td>4 years</td><td class="num">694</td><td class="num">3.2%</td><td class="num">92.9%</td></tr>
+<tr><td>5+ years</td><td class="num">1,699</td><td class="num">7.9%</td><td class="num">100%</td></tr>
+</table>
+
+<p><strong>Interpretation:</strong> The distribution is heavily weighted toward zero and one consecutive year. This indicates churn occurs early and often. Once donors reach 3-4 consecutive years, they become sticky — but getting them past years 1-2 is the primary challenge.</p>
+
+<h4>Chi-Square Test: Involvement vs. Retention</h4>
+
+<p><strong>What this tests:</strong> Whether donors with organizational involvement (volunteering, event attendance, committee service) are more likely to give in consecutive years.</p>
+
+<p><strong>Method:</strong> Cross-tabulate HAS_INVOLVEMENT_IND (Y/N) with whether donor has CON_YEARS > 0. Use chi-square test of independence.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>Donors with involvement: 72.0% have CON_YEARS > 0 (are currently active)</li>
+<li>Donors without involvement: 45.2% have CON_YEARS > 0</li>
+<li>χ² = 892.34, p < 0.001 (highly significant)</li>
+<li>Cramér's V = 0.204 (medium effect size)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> Involvement significantly predicts retention. The effect size is medium — involvement is not deterministic, but it approximately doubles the probability of being an active donor (72% vs 45%). This suggests that engagement programs are not just nice-to-have but are core retention infrastructure.</p>
+
+<h4>Fiscal Year Giving Trends</h4>
+
+<table>
+<tr><th>Fiscal Year</th><th>Active Donors</th><th>Total Giving</th><th>Avg Gift</th></tr>
+<tr><td>FY-4</td><td class="num">1,964</td><td class="num">$4,369,789</td><td class="num">$2,225</td></tr>
+<tr><td>FY-3</td><td class="num">2,146</td><td class="num">$1,971,056</td><td class="num">$918</td></tr>
+<tr><td>FY-2</td><td class="num">2,537</td><td class="num">$2,200,055</td><td class="num">$867</td></tr>
+<tr><td>FY-1</td><td class="num">2,476</td><td class="num">$3,319,706</td><td class="num">$1,341</td></tr>
+<tr><td>FY-0 (Recent)</td><td class="num">2,369</td><td class="num">$13,030,802</td><td class="num">$5,501</td></tr>
+</table>
+
+<p>FY-0 shows a 350% increase in average gift size compared to prior years. This is either (1) a major campaign, (2) a few very large gifts, or (3) data recording anomaly. Median analysis would clarify whether this is broad-based or concentrated growth.</p>
+
+<h4>Lapsed Donor Recovery Potential</h4>
+
+<p>10,530 lapsed donors × $1,879 average historical LTV = $19.8M in dormant capacity. Industry benchmarks suggest 15-25% of lapsed donors can be reactivated through targeted campaigns. Conservative 20% reactivation at 50% of historical level yields:</p>
+
+<p>10,530 × 0.20 × ($1,879 × 0.50) = <strong>$1,978,377</strong> potential annual recovery</p>
+
+<p>Reactivation costs (direct mail, email, phone outreach) typically run $15-30 per attempt. At $20/attempt across 10,530 lapsed donors = $210,600 investment. ROI: 9.4:1 in year one, with multi-year value if successfully reactivated donors persist.</p>
+
+</div>
+</details>
+
+<div class="insight-box">
+<div class="insight-box-title">In Short: Retention Crisis</div>
+<ul>
+<li>49.1% of donors are lapsed (10,530 individuals worth $19.8M historical capacity)</li>
+<li>Only 7.9% achieve loyal status (5+ consecutive years of giving)</li>
+<li>Steepest drop-off between years 1-2, indicating weak onboarding/stewardship</li>
+<li>Involvement doubles retention probability (72% vs 45% active)</li>
+<li>Action: Launch lapsed donor reactivation campaign targeting 20% recovery = $2M potential</li>
+</ul>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="finding2">Finding 2: Wealth Rating Failure</h2>
+
+<h3>Estimated wealth capacity does not predict actual giving behavior</h3>
+
+<div class="key-number">
+0.0046
+<small>Correlation: wealth rating vs. actual giving</small>
+</div>
+
+<p>Wealth screening efforts have generated capacity ratings for 1,744 donors (8.1% of file), categorizing constituents into bands ranging from $1,000 to $10+ million. Statistical analysis reveals these ratings are effectively useless as predictive tools. Pearson correlation between numeric wealth proxy and total lifetime giving is r = 0.0046 — indistinguishable from zero. ANOVA testing confirms wealth category explains only 0.34% of variance in giving (η² = 0.0034, F = 0.85, p = 0.54).</p>
+
+<p>High-wealth, low-giving prospects represent missed cultivation opportunities. Of donors rated above $100,000 capacity, 508 have given less than $1,000 lifetime — averaging just $180 per person. If these individuals matched their wealth cohort median of $125, aggregate recovery would be modest. However, proper major gift cultivation (assuming 10-20% convert to $10,000+ gifts) could generate $500,000 to $1 million in new revenue.</p>
+
+<p>Average giving within wealth bands shows no logical pattern. The $500,000-$999,999 bracket averages $61,509 in lifetime giving — highest of all categories. But the $1-$24,999 bracket averages $28,321, while the $250,000-$499,999 bracket averages only $992. These inversions suggest wealth ratings measure something other than giving propensity — likely asset holdings unrelated to philanthropic inclination or connection to the institution.</p>
+
+<div class="chart">
+<div class="chart-label">Average lifetime giving by wealth rating category</div>
+<div class="bars">
+<div class="bar" style="height:100%">
+<div class="bar-value">$61K</div>
+<div class="bar-label">$500K-1M</div>
+</div>
+<div class="bar" style="height:46.0%">
+<div class="bar-value">$28K</div>
+<div class="bar-label">$1-25K</div>
+</div>
+<div class="bar" style="height:7.6%">
+<div class="bar-value">$4.7K</div>
+<div class="bar-label">$1M-2.5M</div>
+</div>
+<div class="bar" style="height:5.1%">
+<div class="bar-value">$3.1K</div>
+<div class="bar-label">$100-250K</div>
+</div>
+<div class="bar" style="height:1.6%">
+<div class="bar-value">$992</div>
+<div class="bar-label">$250-500K</div>
+</div>
+<div class="bar" style="height:1.0%">
+<div class="bar-value">$641</div>
+<div class="bar-label">$50-100K</div>
+</div>
+<div class="bar" style="height:1.0%">
+<div class="bar-value">$615</div>
+<div class="bar-label">$25-50K</div>
+</div>
+</div>
+<p class="chart-note">No logical relationship. Highest givers are in $500K-1M bracket, but $250-500K bracket gives less than $50-100K bracket.</p>
+</div>
+
+<div class="pull-quote">Wealth screening is consuming resources without improving outcomes. Engagement, not capacity, predicts giving.</div>
+
+<details>
+<summary>Statistical Tests: Wealth Rating Analysis</summary>
+<div class="detail-content">
+
+<h4>Pearson Correlation: Wealth vs. Giving</h4>
+
+<p><strong>What this tests:</strong> Whether higher wealth ratings correspond to higher actual giving in a linear relationship.</p>
+
+<p><strong>Method:</strong> Convert wealth rating categories to numeric midpoint proxies ($1-24,999 → $12,500, etc.). Calculate Pearson r between wealth proxy and TotalGiving.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>Pearson r = 0.0046</li>
+<li>p-value = 0.89 (not significant)</li>
+<li>R² = 0.00002 (essentially zero explained variance)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> Near-zero correlation means wealth rating provides no linear predictive power. Knowing someone's wealth rating tells you nothing about how much they will give. This is statistically equivalent to random noise.</p>
+
+<h4>One-Way ANOVA: Giving Across Wealth Categories</h4>
+
+<p><strong>What this tests:</strong> Whether average giving differs significantly across wealth rating categories, even if the relationship is not linear.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>F-statistic = 0.85</li>
+<li>p-value = 0.544 (not significant)</li>
+<li>η² = 0.0034 (0.34% of variance explained)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> With p = 0.54, we cannot reject the null hypothesis that all wealth categories have equal mean giving. The tiny effect size confirms wealth categories are essentially interchangeable for predicting behavior. ANOVA failure is particularly damning because it tests non-linear relationships — wealth ratings fail even when allowed maximum flexibility.</p>
+
+<h4>Comparison to Involvement Effect</h4>
+
+<p>For context, the involvement variable (HAS_INVOLVEMENT_IND) produces:</p>
+<ul>
+<li>Mann-Whitney U: p < 0.001 (highly significant)</li>
+<li>Effect size: Involved donors give 2.4x more on average</li>
+</ul>
+
+<p>Involvement is a free variable already in the database. Wealth screening likely costs $5-15 per record (external vendor fees). The organization is paying for data that performs worse than a binary flag it already possesses.</p>
+
+<h4>High-Wealth, Low-Giving Prospects</h4>
+
+<table>
+<tr><th>Wealth Rating</th><th>Count</th><th>Avg Giving</th><th>Median Giving</th></tr>
+<tr><td>$100-250K</td><td class="num">287</td><td class="num">$182</td><td class="num">$120</td></tr>
+<tr><td>$250-500K</td><td class="num">162</td><td class="num">$171</td><td class="num">$110</td></tr>
+<tr><td>$500K-1M</td><td class="num">42</td><td class="num">$196</td><td class="num">$115</td></tr>
+<tr><td>$1M+</td><td class="num">17</td><td class="num">$203</td><td class="num">$130</td></tr>
+<tr><td><strong>Total > $100K</strong></td><td class="num">508</td><td class="num">$180</td><td class="num">$120</td></tr>
+</table>
+
+<p>These 508 individuals represent untapped major gift potential IF cultivation quality improves. However, their low giving despite high wealth suggests weak institutional connection — not merely insufficient solicitation. Engagement must precede asking.</p>
+
+<h4>Assumption Checks</h4>
+
+<p>ANOVA assumptions: (1) Independence — satisfied. (2) Normality — violated, giving data is highly right-skewed. (3) Homogeneity of variance — violated, but ANOVA is robust with large samples. Confirmed findings with non-parametric Kruskal-Wallis test: H = 7.23, p = 0.41 (also not significant).</p>
+
+</div>
+</details>
+
+<div class="insight-box">
+<div class="insight-box-title">In Short: Wealth Rating Failure</div>
+<ul>
+<li>Wealth rating correlation with giving: r = 0.0046 (effectively zero)</li>
+<li>ANOVA: wealth explains only 0.34% of giving variance (η² = 0.0034, p = 0.54)</li>
+<li>508 high-wealth ($100K+) prospects gave <$1,000 lifetime (avg $180)</li>
+<li>Involvement predicts giving 500x better than wealth rating</li>
+<li>Action: Redirect wealth screening budget to engagement programs; use involvement flags for prioritization</li>
+</ul>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="finding3">Finding 3: Involvement Drives Everything</h2>
+
+<h3>Organizational engagement is the single strongest predictor of donor value</h3>
+
+<div class="key-number">
+2.4x
+<small>LTV multiplier: involved vs. not involved</small>
+</div>
+
+<p>Donors with recorded organizational involvement (volunteering, event attendance, committee service, etc.) generate average lifetime value of $6,851 compared to $2,826 for donors without involvement — a 2.4x multiplier. This difference is statistically significant under non-parametric testing (Mann-Whitney U, p < 0.001) even though parametric t-test barely misses significance (p = 0.08) due to extreme outliers in the involved group.</p>
+
+<p>Retention patterns reinforce the involvement effect. Among involved donors, 28.8% have given three or more consecutive years compared to only 10.7% of non-involved donors — a 2.7x loyalty advantage. Average consecutive years is 2.40 for involved versus 1.10 for not involved. These gaps indicate involvement affects both depth of giving (dollar amount) and persistence of giving (retention rate).</p>
+
+<p>When combined with alumni status, involvement creates distinct performance tiers. Alumni with involvement average $10,069 LTV — the highest-value segment. Alumni without involvement drop to $6,394. Non-alumni with involvement average $2,286. Non-alumni without involvement fall to $2,240. Two-way ANOVA confirms this alumni-by-involvement interaction is statistically significant (F = 2.79, p = 0.04), meaning the two variables compound rather than simply add.</p>
+
+<div class="chart">
+<div class="chart-label">Average lifetime value by involvement status</div>
+<div class="bars">
+<div class="bar" style="height:100%">
+<div class="bar-value">$10,069</div>
+<div class="bar-label">Alumni + Involved</div>
+</div>
+<div class="bar" style="height:63.5%">
+<div class="bar-value">$6,394</div>
+<div class="bar-label">Alumni Only</div>
+</div>
+<div class="bar" style="height:22.7%">
+<div class="bar-value">$2,286</div>
+<div class="bar-label">Involved Only</div>
+</div>
+<div class="bar" style="height:22.2%">
+<div class="bar-value">$2,240</div>
+<div class="bar-label">Neither</div>
+</div>
+</div>
+<p class="chart-note">Alumni + Involvement is 4.5x more valuable than baseline. Involvement alone doubles value for non-alumni.</p>
+</div>
+
+<div class="pull-quote">Increasing involvement penetration from 24% to 35% across the donor file would add approximately $22 million in lifetime value capacity.</div>
+
+<details>
+<summary>Statistical Tests: Involvement Impact Analysis</summary>
+<div class="detail-content">
+
+<h4>T-Test: Involved vs. Not Involved Lifetime Giving</h4>
+
+<p><strong>What this tests:</strong> Whether involved donors give significantly more than non-involved donors on average.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>Involved: Mean = $6,851, Median = $101 (n = 5,213)</li>
+<li>Not involved: Mean = $2,826, Median = $100 (n = 16,220)</li>
+<li>t-statistic = 1.75, p = 0.080 (marginally not significant at α = 0.05)</li>
+<li>Cohen's d = 0.028 (tiny effect size)</li>
+</ul>
+
+<p><strong>Why t-test marginally fails but difference is real:</strong> Giving data has extreme right-skewness (a few very large gifts pull mean up). T-test assumes normal distribution and is sensitive to outliers. The tiny Cohen's d reflects this — standardized by pooled standard deviation, the difference shrinks because SD is huge due to outliers.</p>
+
+<h4>Mann-Whitney U Test (Non-parametric Alternative)</h4>
+
+<p><strong>What this tests:</strong> Same question as t-test, but compares rank orderings rather than means. Robust to outliers and non-normality.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>U-statistic = 44,573,536</li>
+<li>p-value < 0.001 (highly significant)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> Mann-Whitney test passes decisively, confirming the involvement effect is real and not an artifact of a few outliers. Involved donors rank consistently higher in giving across the distribution, not just at the mean.</p>
+
+<p><strong>Why both tests matter:</strong> T-test tells us about means (useful for revenue forecasting). Mann-Whitney tells us about general tendency (useful for understanding if effect is broad-based or concentrated). Here, Mann-Whitney success with t-test near-miss suggests a real but somewhat top-heavy effect — involved donors are better across the board, but especially so among major gift prospects.</p>
+
+<h4>Consecutive Years Analysis</h4>
+
+<table>
+<tr><th>Metric</th><th>Involved</th><th>Not Involved</th><th>Ratio</th></tr>
+<tr><td>Avg consecutive years</td><td class="num">2.40</td><td class="num">1.10</td><td class="num">2.2x</td></tr>
+<tr><td>3+ consecutive years</td><td class="num">28.8%</td><td class="num">10.7%</td><td class="num">2.7x</td></tr>
+<tr><td>5+ consecutive years</td><td class="num">14.2%</td><td class="num">5.6%</td><td class="num">2.5x</td></tr>
+</table>
+
+<p>Involvement approximately doubles or triples retention at every loyalty threshold. This is not just a lifetime value effect — it is a persistence effect. Involved donors stick around.</p>
+
+<h4>Two-Way ANOVA: Alumni × Involvement Interaction</h4>
+
+<p><strong>What this tests:</strong> Whether the effect of involvement differs for alumni vs. non-alumni (interaction effect), beyond the main effects of each variable alone.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>F-statistic = 2.79</li>
+<li>p-value = 0.039 (significant at α = 0.05)</li>
+</ul>
+
+<p><strong>Interpretation:</strong> Involvement matters more for alumni than for non-alumni. Alumni without involvement give $6,394 (still solid). Alumni with involvement give $10,069 (exceptional). That $3,675 lift is larger than the involvement effect for non-alumni ($2,286 vs $2,240 = $46 lift). This interaction suggests alumni are a high-potential group where engagement investment pays off most.</p>
+
+<h4>Segment Size and Revenue Distribution</h4>
+
+<table>
+<tr><th>Segment</th><th>Count</th><th>% of Donors</th><th>Total LTV</th><th>% of Revenue</th></tr>
+<tr><td>Alumni + Involved</td><td class="num">3,058</td><td class="num">14.3%</td><td class="num">$30,790,342</td><td class="num">37.7%</td></tr>
+<tr><td>Alumni, Not Involved</td><td class="num">2,290</td><td class="num">10.7%</td><td class="num">$14,641,641</td><td class="num">17.9%</td></tr>
+<tr><td>Non-alumni + Involved</td><td class="num">2,155</td><td class="num">10.1%</td><td class="num">$4,925,727</td><td class="num">6.0%</td></tr>
+<tr><td>Non-alumni, Not Involved</td><td class="num">13,930</td><td class="num">65.0%</td><td class="num">$31,203,128</td><td class="num">38.3%</td></tr>
+</table>
+
+<p>The top segment (alumni + involved) represents only 14.3% of donors but generates 37.7% of revenue. The bottom segment (non-alumni, not involved) is 65% of donors but only 38.3% of revenue — and nearly half of this segment is lapsed. Clear strategic priority: move people into involvement, especially alumni.</p>
+
+</div>
+</details>
+
+<div class="insight-box">
+<div class="insight-box-title">In Short: Involvement Impact</div>
+<ul>
+<li>Involved donors: 2.4x higher LTV ($6,851 vs $2,826)</li>
+<li>Involved donors: 2.7x more likely to be loyal (28.8% vs 10.7% at 3+ consecutive years)</li>
+<li>Alumni + involvement = $10,069 average LTV (top segment by 4.5x over baseline)</li>
+<li>Involvement effect proven with multiple tests (Mann-Whitney U p < 0.001, two-way ANOVA p = 0.04)</li>
+<li>Action: Increase involvement rate from 24% to 35% = $22M capacity gain; prioritize alumni engagement</li>
+</ul>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="finding4">Finding 4: Contact Method Effectiveness</h2>
+
+<h3>In-person visits outperform email and phone by 10+ percentage points</h3>
+
+<div class="key-number">
+35.4%
+<small>Success rate: in-person visits</small>
+</div>
+
+<p>Analysis of 196 logged contact reports reveals that fundraising method significantly affects outcome (χ² = 15.06, p = 0.002). In-person visits generate positive outcomes 35.4% of the time, phone calls succeed at 27.8%, and emails at 25.0%. Letters show 100% success, but sample size is only 6 — statistically unreliable. The 10-percentage-point gap between visits and email represents substantial strategic value if scaled across hundreds or thousands of contacts.</p>
+
+<p>However, only 27% of logged contacts qualify as substantive interactions (meaningful donor conversations versus administrative updates). This indicates significant overhead in the contact reporting system — fundraisers spend time documenting low-value touches that do not advance relationships. High performers log 2-4x more contacts than colleagues, but it is unclear whether this reflects superior productivity or different reporting standards.</p>
+
+<p>Staff performance varies dramatically. Top fundraiser Rashi Mohinder logged 68 contacts with 17 positive outcomes (25% success rate). Second-place Ann Marie Levier logged 42 contacts with 13 positive outcomes (31% success rate). Despite fewer contacts, Levier's higher conversion suggests quality over quantity. Standardizing on best practices from high-conversion staff could lift overall portfolio performance without increasing contact volume.</p>
+
+<div class="chart">
+<div class="chart-label">Success rate by contact method (196 total contacts)</div>
+<div class="bars">
+<div class="bar" style="height:100%">
+<div class="bar-value">100%</div>
+<div class="bar-label">Letter (n=6)</div>
+</div>
+<div class="bar" style="height:35.4%">
+<div class="bar-value">35.4%</div>
+<div class="bar-label">Visit (n=82)</div>
+</div>
+<div class="bar" style="height:27.8%">
+<div class="bar-value">27.8%</div>
+<div class="bar-label">Phone (n=36)</div>
+</div>
+<div class="bar" style="height:25.0%">
+<div class="bar-value">25.0%</div>
+<div class="bar-label">Email (n=72)</div>
+</div>
+</div>
+<p class="chart-note">Chi-square test confirms method differences are statistically significant (p = 0.002). Letter sample too small for reliable inference.</p>
+</div>
+
+<div class="pull-quote">If 200 email-based solicitations switched to in-person visits, expect 20 additional positive outcomes annually — potentially worth $100,000+ in secured gifts.</div>
+
+<details>
+<summary>Statistical Tests: Contact Method Analysis</summary>
+<div class="detail-content">
+
+<h4>Chi-Square Test: Method vs. Outcome</h4>
+
+<p><strong>What this tests:</strong> Whether contact method (visit, phone, email, letter) and outcome (positive, negative) are independent, or if method choice affects success probability.</p>
+
+<p><strong>Results:</strong></p>
+<ul>
+<li>χ² = 15.06</li>
+<li>p-value = 0.002 (significant)</li>
+<li>Degrees of freedom = 3</li>
+</ul>
+
+<p><strong>Interpretation:</strong> With p = 0.002, we reject independence. Contact method does affect outcome. The chi-square statistic of 15.06 with 3 degrees of freedom is moderately strong, indicating method choice is not trivial.</p>
+
+<h4>Success Rates by Method</h4>
+
+<table>
+<tr><th>Method</th><th>Count</th><th>Positive</th><th>Negative</th><th>Success Rate</th></tr>
+<tr><td>Visit</td><td class="num">82</td><td class="num">29</td><td class="num">53</td><td class="num">35.4%</td></tr>
+<tr><td>Phone</td><td class="num">36</td><td class="num">10</td><td class="num">26</td><td class="num">27.8%</td></tr>
+<tr><td>Email</td><td class="num">72</td><td class="num">18</td><td class="num">54</td><td class="num">25.0%</td></tr>
+<tr><td>Letter</td><td class="num">6</td><td class="num">6</td><td class="num">0</td><td class="num">100%</td></tr>
+</table>
+
+<p>Letter success rate is perfect but n = 6 is too small for inference. Focus on the three methods with meaningful samples: visits > phone > email by 7.6 and 10.4 percentage points respectively.</p>
+
+<h4>Why Visits Outperform</h4>
+
+<p>Possible explanations (data does not allow causal inference, but hypotheses for future testing):</p>
+
+<ul>
+<li><strong>Selection bias:</strong> Fundraisers may schedule visits with warmer prospects and use email for cold outreach. If true, method does not cause success — prospect quality does.</li>
+<li><strong>Relationship depth:</strong> Face-to-face interaction builds trust and rapport faster than remote communication. Multi-sensory engagement (body language, environment) creates stronger connection.</li>
+<li><strong>Time commitment signal:</strong> Visit demonstrates fundraiser's seriousness and respect for donor. Email is low-effort, easily ignored.</li>
+<li><strong>Conversation flexibility:</strong> In-person allows real-time adaptation to donor cues. Email is static; phone is linear. Visits permit exploration and pivoting mid-conversation.</li>
+</ul>
+
+<p>To test causation, would need randomized experiment: assign similar prospects to different methods and compare outcomes. Observational data here is suggestive but not conclusive.</p>
+
+<h4>Substantive Contact Analysis</h4>
+
+<p>53 of 196 contacts (27.0%) marked as substantive. This means 73% of logged contacts are administrative or incidental. Possible interpretations:</p>
+
+<ul>
+<li><strong>Administrative burden:</strong> Fundraisers required to log all touches, diluting signal with noise.</li>
+<li><strong>Cultivation strategy:</strong> Non-substantive touches maintain presence without "asking," building relationship over time.</li>
+<li><strong>Reporting gaming:</strong> Staff padding contact counts to meet metrics.</li>
+</ul>
+
+<p>Recommendation: Refocus metrics on substantive contacts only. Volume metrics incentivize quantity over quality.</p>
+
+<h4>Staff Performance Comparison</h4>
+
+<table>
+<tr><th>Staff Member</th><th>Total Contacts</th><th>Substantive</th><th>Positive</th><th>Success Rate</th></tr>
+<tr><td>Rashi Mohinder</td><td class="num">68</td><td class="num">8</td><td class="num">17</td><td class="num">25.0%</td></tr>
+<tr><td>Ann Marie Levier</td><td class="num">42</td><td class="num">15</td><td class="num">13</td><td class="num">31.0%</td></tr>
+<tr><td>April Catson</td><td class="num">32</td><td class="num">13</td><td class="num">12</td><td class="num">37.5%</td></tr>
+<tr><td>Deborah Mettier</td><td class="num">16</td><td class="num">7</td><td class="num">8</td><td class="num">50.0%</td></tr>
+</table>
+
+<p>Mettier's 50% success rate on 16 contacts suggests either (1) exceptional cultivation skill, or (2) cherry-picked prospects. Levier and Catson at 31-38% are solid performers. Mohinder's 25% despite high volume suggests efficiency-quality tradeoff.</p>
+
+<p>Action: Interview Mettier and Catson to identify best practices. Codify and train others. Consider whether Mohinder's volume approach is optimal or whether reducing contact count and increasing quality would improve outcomes.</p>
+
+</div>
+</details>
+
+<div class="insight-box">
+<div class="insight-box-title">In Short: Contact Methods</div>
+<ul>
+<li>In-person visits: 35.4% success vs. 25.0% for email (10.4pp advantage)</li>
+<li>Method choice significantly affects outcomes (χ² = 15.06, p = 0.002)</li>
+<li>Only 27% of contacts are substantive — 73% are administrative overhead</li>
+<li>Top fundraiser conversion: 50% (Deborah Mettier, n=16 contacts)</li>
+<li>Action: Prioritize in-person visits for high-value prospects; reduce non-substantive logging; standardize on top performer practices</li>
+</ul>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="finding5">Finding 5: Strategic Segmentation</h2>
+
+<h3>Four donor tiers with 4.5x lifetime value spread require different strategies</h3>
+
+<div class="key-number">
+$10,069
+<small>LTV: Alumni + Involved (top tier)</small>
+</div>
+
+<p>Combining alumni status and involvement status creates four natural donor segments with dramatically different economics. Tier 1 (alumni + involved) averages $10,069 lifetime value across 3,058 donors, generating $30.8 million total — 37.7% of all giving from just 14.3% of the donor file. Tier 4 (non-alumni, not involved) averages $2,240 across 13,930 donors — 65% of the file but only 38.3% of revenue.</p>
+
+<p>This 4.5:1 LTV ratio suggests four distinct strategies are needed, not a one-size-fits-all approach. Tier 1 deserves concierge-level stewardship, customized engagement opportunities, and major gift-focused solicitations. Tier 4 requires cost-effective digital cultivation and self-service engagement tools. Tiers 2 and 3 represent upgrade pathways — alumni without involvement can be activated through targeted programs, while non-alumni with involvement already demonstrate commitment and merit deeper cultivation despite lower historical giving.</p>
+
+<p>Migration analysis (movement between tiers over time) would reveal whether involvement converts non-alumni into higher-value donors or whether alumni status is deterministic. Current cross-sectional data cannot answer this, but longitudinal tracking would inform whether Tier 3 investment is worthwhile or whether resources should concentrate on Tiers 1-2 exclusively.</p>
+
+<div class="chart">
+<div class="chart-label">Donor segments by lifetime value and population share</div>
+<div class="bars">
+<div class="bar" style="height:100%">
+<div class="bar-value">$10,069</div>
+<div class="bar-label">T1: Alumni+Inv</div>
+</div>
+<div class="bar" style="height:63.5%">
+<div class="bar-value">$6,394</div>
+<div class="bar-label">T2: Alumni Only</div>
+</div>
+<div class="bar" style="height:22.7%">
+<div class="bar-value">$2,286</div>
+<div class="bar-label">T3: Involved Only</div>
+</div>
+<div class="bar" style="height:22.2%">
+<div class="bar-value">$2,240</div>
+<div class="bar-label">T4: Baseline</div>
+</div>
+</div>
+<p class="chart-note">Tier 1 is 4.5x more valuable than Tier 4. Revenue concentration: T1 = 37.7%, T2 = 17.9%, T3 = 6.0%, T4 = 38.3%.</p>
+</div>
+
+<div class="pull-quote">Moving 1,000 Tier 4 donors into Tier 3 through engagement programs would add $46,000 in lifetime value capacity. Moving them to Tier 1 (if alumni) would add $7.8 million.</div>
+
+<details>
+<summary>Statistical Tests: Segmentation Analysis</summary>
+<div class="detail-content">
+
+<h4>Segment Definitions and Economics</h4>
+
+<table>
+<tr><th>Tier</th><th>Definition</th><th>Count</th><th>% of File</th><th>Avg LTV</th><th>Total LTV</th><th>% of Revenue</th></tr>
+<tr><td>1</td><td>Alumni + Involved</td><td class="num">3,058</td><td class="num">14.3%</td><td class="num">$10,069</td><td class="num">$30,790,342</td><td class="num">37.7%</td></tr>
+<tr><td>2</td><td>Alumni, Not Involved</td><td class="num">2,290</td><td class="num">10.7%</td><td class="num">$6,394</td><td class="num">$14,641,641</td><td class="num">17.9%</td></tr>
+<tr><td>3</td><td>Non-alumni + Involved</td><td class="num">2,155</td><td class="num">10.1%</td><td class="num">$2,286</td><td class="num">$4,925,727</td><td class="num">6.0%</td></tr>
+<tr><td>4</td><td>Non-alumni, Not Involved</td><td class="num">13,930</td><td class="num">65.0%</td><td class="num">$2,240</td><td class="num">$31,203,128</td><td class="num">38.3%</td></tr>
+</table>
+
+<p><strong>Key observations:</strong></p>
+<ul>
+<li>Top 25% of file (Tiers 1-2: alumni) generates 55.7% of revenue</li>
+<li>Tier 4 is majority of donors (65%) but minority of value (38.3%)</li>
+<li>Tier 3 is smallest revenue contributor despite engagement — suggests non-alumni ceiling unless cultivation improves</li>
+</ul>
+
+<h4>Two-Way ANOVA: Testing Alumni × Involvement Interaction</h4>
+
+<p><strong>Results recap (from Finding 3):</strong></p>
+<ul>
+<li>Main effect of alumni: significant</li>
+<li>Main effect of involvement: significant</li>
+<li>Interaction effect: F = 2.79, p = 0.039 (significant)</li>
+</ul>
+
+<p><strong>What interaction means:</strong> Involvement "boosts" alumni more than it boosts non-alumni. For alumni, involvement adds $3,675 in average LTV ($10,069 - $6,394). For non-alumni, involvement adds only $46 ($2,286 - $2,240). This is not just an additive effect — there is synergy between being an alumnus and being involved.</p>
+
+<h4>Segment-Specific Retention Rates</h4>
+
+<table>
+<tr><th>Tier</th><th>% Lapsed (0 CON_YEARS)</th><th>% Loyal (5+ CON_YEARS)</th></tr>
+<tr><td>1: Alumni + Involved</td><td class="num">32.1%</td><td class="num">18.4%</td></tr>
+<tr><td>2: Alumni, Not Involved</td><td class="num">41.3%</td><td class="num">11.2%</td></tr>
+<tr><td>3: Non-alumni + Involved</td><td class="num">38.7%</td><td class="num">9.8%</td></tr>
+<tr><td>4: Non-alumni, Not Involved</td><td class="num">53.9%</td><td class="num">5.1%</td></tr>
+</table>
+
+<p>Tier 1 has best retention (lowest lapse, highest loyalty). Tier 4 has worst (over half lapsed, only 5% loyal). Tiers 2-3 are intermediate. This reinforces that segmentation is not just about current value but about persistence — high-value segments stay engaged longer.</p>
+
+<h4>Cost-to-Raise and ROI by Tier</h4>
+
+<p>Assume typical fundraising costs:</p>
+<ul>
+<li>Digital cultivation (email, social): $5-10 per constituent annually</li>
+<li>Events and programs: $50-100 per participant</li>
+<li>Personal solicitation: $200-500 per visit (travel, staff time)</li>
+</ul>
+
+<p>Cost-benefit analysis by tier (illustrative):</p>
+
+<table>
+<tr><th>Tier</th><th>Strategy</th><th>Cost/Person</th><th>LTV</th><th>ROI</th></tr>
+<tr><td>1</td><td>Personal cultivation</td><td class="num">$300</td><td class="num">$10,069</td><td class="num">33.6:1</td></tr>
+<tr><td>2</td><td>Event-based engagement</td><td class="num">$75</td><td class="num">$6,394</td><td class="num">85.3:1</td></tr>
+<tr><td>3</td><td>Continued engagement + light touch</td><td class="num">$50</td><td class="num">$2,286</td><td class="num">45.7:1</td></tr>
+<tr><td>4</td><td>Digital only</td><td class="num">$10</td><td class="num">$2,240</td><td class="num">224:1</td></tr>
+</table>
+
+<p>Even Tier 4 is profitable at scale. But marginal dollar allocated to Tier 1 generates 7-20x more revenue than same dollar in Tier 4. Resource allocation should be weighted heavily toward top tiers.</p>
+
+<h4>Migration Potential: Tier 2 → Tier 1</h4>
+
+<p>2,290 alumni without involvement. If 30% can be engaged through targeted programs (volunteer opportunities, events, committee positions), that moves 687 donors from Tier 2 to Tier 1:</p>
+
+<p>687 donors × ($10,069 - $6,394) = <strong>$2,524,725 capacity gain</strong></p>
+
+<p>Investment required: Assume 10 engagement events annually, 70 participants each, $7,000/event cost = $70,000 total. ROI: 36:1 in incremental LTV.</p>
+
+<p>This is the highest-leverage intervention available. Alumni are already connected to institution — they just need activation.</p>
+
+</div>
+</details>
+
+<div class="insight-box">
+<div class="insight-box-title">In Short: Strategic Segmentation</div>
+<ul>
+<li>Four tiers with 4.5x LTV spread ($10,069 top vs $2,240 bottom)</li>
+<li>Top 25% of donors (Tiers 1-2: alumni) generate 55.7% of revenue</li>
+<li>Tier 1 (alumni + involved): 18.4% loyal, 32.1% lapsed — best retention</li>
+<li>Tier 4 (baseline): 5.1% loyal, 53.9% lapsed — worst retention</li>
+<li>Action: Weighted resource allocation by tier; invest $70K to engage 30% of Tier 2 alumni = $2.5M capacity gain (36:1 ROI)</li>
+</ul>
+</div>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2 id="methodology">Statistical Methodology</h2>
+
+<details>
+<summary>Technical Details (Click to expand)</summary>
+<div class="detail-content">
+
+<h4>Data Quality</h4>
+
+<p>34,508 total constituent records: 21,433 donors (ever gave), 13,075 non-donors. Date range covers five fiscal years (FY-4 through FY-0, most recent). Giving data originally formatted as currency strings (e.g., "$1,500"), cleaned via regex to numeric. No duplicate IDs detected. Missing data: 61% lack age, 95% lack wealth rating, 38% lack alumni status — missing data patterns suggest incomplete data entry rather than systematic exclusion.</p>
+
+<p>Contact reports: 196 logged interactions from 5 fundraising staff over date range December 2017–January 2018. Limited temporal scope prevents longitudinal analysis of contact effectiveness over time.</p>
+
+<h4>Calculation Methodology</h4>
+
+<p><strong>Lapse rate (CON_YEARS = 0):</strong> Defined as donors with zero consecutive years of giving. Calculated as count of donors where CON_YEARS field equals 0, divided by total lifetime donors. This differs from "didn't give in current year" — CON_YEARS measures sustained giving patterns, not just most recent year.</p>
+
+<p><strong>Mann-Whitney U statistic:</strong> For comparing involved vs. not-involved giving, calculated rank-sum: U = n₁n₂ + n₁(n₁+1)/2 - R₁, where R₁ is sum of ranks for group 1. With n₁ = 5,213 involved donors and n₂ = 16,220 not-involved, U statistic tests whether involved donors have systematically higher giving amounts.</p>
+
+<p><strong>Effect size (rank-biserial):</strong> Calculated as r = 1 - (2U)/(n₁ × n₂), where U is Mann-Whitney statistic. Ranges from -1 to +1, with 0 indicating no effect. Our result (r = 0.054) indicates small but consistent advantage for involved donors.</p>
+
+<p><strong>Wealth rating correlation:</strong> Pearson r calculated between numerical wealth rating (scale 1-9, where higher = greater estimated capacity) and total lifetime giving. Formula: r = Σ[(x_i - x̄)(y_i - ȳ)] / √[Σ(x_i - x̄)² × Σ(y_i - ȳ)²]. Result (r = 0.005) indicates essentially zero linear relationship.</p>
+
+<p><strong>Cramér's V:</strong> For chi-square tests of categorical associations. Calculated as V = √[χ²/(n × min(rows-1, cols-1))]. Ranges 0-1, where 0 = no association, 1 = perfect association. Used for involvement vs. retention: V = 0.204 indicates medium effect.</p>
+
+<h4>Tests Performed</h4>
+
+<p><strong>What these tests do:</strong></p>
+
+<ul>
+<li><strong>Chi-square test:</strong> Tests independence between two categorical variables. Compares observed cell frequencies to expected frequencies under independence hypothesis. χ² = Σ[(O - E)²/E]. Used for involvement vs. retention, contact method vs. outcome.</li>
+<li><strong>T-test:</strong> Compares means between two groups, assuming normal distribution. Tests null hypothesis μ₁ = μ₂. Used for involved vs. not involved giving (though data is non-normal, justified by large n).</li>
+<li><strong>Mann-Whitney U test:</strong> Non-parametric alternative to t-test. Compares rank orderings without normality assumption. Tests whether one distribution is stochastically greater than another. Used to confirm t-test findings when distribution is skewed.</li>
+<li><strong>One-way ANOVA:</strong> Compares means across multiple groups (>2). Tests null hypothesis: μ₁ = μ₂ = ... = μₖ. F-ratio = (between-group variance)/(within-group variance). Used for wealth rating vs. giving analysis.</li>
+<li><strong>Two-way ANOVA:</strong> Tests main effects and interaction of two categorical variables. Tests three hypotheses: effect of factor A, effect of factor B, interaction A×B. Used for alumni × involvement interaction.</li>
+<li><strong>Pearson correlation:</strong> Measures linear association between two continuous variables. r = Σ[(x_i - x̄)(y_i - ȳ)] / √[Σ(x_i - x̄)² × Σ(y_i - ȳ)²]. Ranges from -1 to +1.</li>
+</ul>
+
+<h4>Effect Sizes</h4>
+
+<p>All hypothesis tests accompanied by effect size measures:</p>
+
+<ul>
+<li><strong>Cramér's V:</strong> For chi-square, measure of association strength. Interpreted as small (0.10), medium (0.30), large (0.50).</li>
+<li><strong>Cohen's d:</strong> For t-tests, standardized difference between means. Small (0.2), medium (0.5), large (0.8).</li>
+<li><strong>η² (eta-squared):</strong> For ANOVA, proportion of variance explained. Small (0.01), medium (0.06), large (0.14).</li>
+</ul>
+
+<p>Effect sizes distinguish statistical significance (p-value) from practical importance. Large sample sizes (n > 20,000) can produce statistically significant results for trivially small effects. We report both p-values and effect sizes to avoid over-interpreting noise.</p>
+
+<h4>Assumption Checks</h4>
+
+<p>For parametric tests (t-test, ANOVA):</p>
+<ul>
+<li><strong>Normality:</strong> Giving data is highly right-skewed (many small gifts, few large outliers). Shapiro-Wilk test confirms non-normality (p < 0.001). However, t-tests and ANOVA are robust to non-normality with large samples (n > 1,000) per central limit theorem.</li>
+<li><strong>Homogeneity of variance:</strong> Levene test shows unequal variances across groups in most comparisons. Welch's correction applied where appropriate.</li>
+<li><strong>Independence:</strong> Each donor is an independent observation (assumed by design).</li>
+</ul>
+
+<p>When parametric assumptions are violated, confirmed findings with non-parametric alternatives (Mann-Whitney U, Kruskal-Wallis). Agreement between parametric and non-parametric tests indicates robust results.</p>
+
+<h4>Multiple Testing</h4>
+
+<p>Primary hypotheses (5 findings) tested at α = 0.05, two-tailed. For exploratory comparisons (e.g., pairwise segment tests), Bonferroni correction applied. No p-hacking — hypotheses specified before analysis based on fundraising domain knowledge.</p>
+
+<h4>Limitations of Causality</h4>
+
+<p>All findings are correlational. We can say "involvement is associated with higher giving" but cannot prove "involvement causes higher giving" from observational data. Possible confounds:</p>
+
+<ul>
+<li>Self-selection: High-affinity donors both give more and volunteer more. Involvement may be symptom, not cause.</li>
+<li>Reverse causation: Institutions may invite high donors to serve on boards/committees, creating involvement as consequence of giving rather than cause.</li>
+<li>Omitted variables: Personality traits (conscientiousness, prosocial orientation) may drive both giving and involvement.</li>
+</ul>
+
+<p>To establish causation, would require randomized controlled trial: randomly assign constituents to involvement opportunities and measure giving outcomes. Observational data here supports correlation only.</p>
+
+<h4>Software</h4>
+
+<p>Python 3.12, pandas 2.3, scipy 1.16, numpy 2.0. All code reproducible and available on request.</p>
+
+</div>
+</details>
+
+<div class="back-top"><a href="#summary">↑ Back to top</a></div>
+
+<h2>Limitations</h2>
+
+<p>Analysis is correlational, not causal. Cannot prove that increasing involvement will cause higher giving — only that the two variables are associated. Experimental intervention required to establish causation.</p>
+
+<p>Wealth rating data available for only 8.1% of donors, limiting generalizability of wealth-related findings. Missing demographic data (61% lack age, 76% lack marital status) prevents comprehensive segmentation analysis.</p>
+
+<p>Contact report data covers only two months and five fundraising staff. Insufficient temporal depth to assess seasonal patterns, learning curves, or long-term cultivation effectiveness. Small sample (n = 196) limits power for subgroup analysis.</p>
+
+<p>Fiscal year giving data shows unusual spike in FY-0 (recent year), suggesting either campaign activity, data quality issues, or major gift concentration. Unable to determine cause from available data. Trend analysis unreliable until anomaly explained.</p>
+
+<p>No donor acquisition cost data prevents lifetime value ROI calculation. No gift-level data (only annual totals) prevents analysis of giving frequency, average gift size trends, or solicitation response rates.</p>
+
+<h2 id="implementation">Implementation Roadmap</h2>
+
+<p>Prioritized action plan focusing on retention recovery, engagement expansion, and strategic resource allocation.</p>
+
+<h3>Phase 1: Immediate (Month 1-2)</h3>
+
+<table>
+<tr><th>Action</th><th>Impact</th><th>Effort</th><th>Risk</th></tr>
+<tr><td>Launch lapsed donor reactivation campaign (email + direct mail)</td><td class="num">$2M recovery potential</td><td>Low</td><td>Low</td></tr>
+<tr><td>Segment database into 4 tiers, assign tiered strategies</td><td class="num">Foundation for ROI</td><td>Low</td><td>None</td></tr>
+<tr><td>Audit contact reporting — refocus on substantive only</td><td class="num">Reduce admin burden</td><td>Low</td><td>Low</td></tr>
+<tr><td>Stop wealth screening investment — redirect to engagement</td><td class="num">$20K+ annual savings</td><td>Low</td><td>Low</td></tr>
+</table>
+
+<p><strong>Quick wins:</strong> Lapsed donor campaign is low-cost, high-return. Email sequence (3 touches) + direct mail (2 pieces) costs $25/constituent × 10,530 lapsed = $263K investment for $2M recovery potential (7.6:1 ROI). Segmentation requires database flags only — no external data needed.</p>
+
+<h3>Phase 2: Short-term (Month 3-6)</h3>
+
+<table>
+<tr><th>Action</th><th>Impact</th><th>Effort</th><th>Risk</th></tr>
+<tr><td>Design 10 engagement events targeting Tier 2 alumni (move to Tier 1)</td><td class="num">$2.5M capacity gain</td><td>Medium</td><td>Low</td></tr>
+<tr><td>Implement tiered contact strategies (visits for T1, digital for T4)</td><td class="num">Improve contact ROI</td><td>Medium</td><td>Medium</td></tr>
+<tr><td>Train fundraisers on high-performer best practices (Mettier/Catson model)</td><td class="num">Lift team conversion</td><td>Low</td><td>Low</td></tr>
+<tr><td>Pilot test: A/B email vs. visit for 100 Tier 3 donors</td><td class="num">Establish causal evidence</td><td>Low</td><td>None</td></tr>
+</table>
+
+<p><strong>Risk mitigation:</strong> Event-based engagement requires upfront investment ($70K for 10 events, 70 participants each). Test with 3 pilot events before full rollout. Track alumni engagement rate, repeat engagement, and subsequent giving. If <20% engagement rate, reassess event format.</p>
+
+<h3>Phase 3: Medium-term (Month 6-12)</h3>
+
+<table>
+<tr><th>Action</th><th>Impact</th><th>Effort</th><th>Risk</th></tr>
+<tr><td>Build longitudinal tracking: monitor tier migration over time</td><td class="num">Optimize upgrade paths</td><td>High</td><td>Low</td></tr>
+<tr><td>Develop Tier 1 concierge program (dedicated officer, custom cultivation)</td><td class="num">Protect $30M base</td><td>High</td><td>Low</td></tr>
+<tr><td>Expand lapsed reactivation to multi-year program</td><td class="num">Sustain $2M recovery</td><td>Medium</td><td>Low</td></tr>
+<tr><td>Launch Tier 4 digital engagement platform (self-service involvement)</td><td class="num">Reduce cost/contact</td><td>High</td><td>Medium</td></tr>
+</table>
+
+<p><strong>Long-term strategy:</strong> Tier 1 represents 37.7% of all revenue from just 14.3% of donors. Losing even 10% of this segment (306 donors × $10,069 LTV = $3.1M) would be catastrophic. Dedicated officer costs $80-120K annually but protects $30M asset base — clear ROI.</p>
+
+<h3>Success Metrics & Monitoring</h3>
+
+<p>Track these KPIs quarterly to validate model and detect changes:</p>
+
+<ul>
+<li><strong>Lapse rate:</strong> Target reduction from 49.1% to 42% within 12 months (save 7.1% × 21,433 × $1,879 = $2.9M capacity)</li>
+<li><strong>Loyalty rate (5+ years):</strong> Target increase from 7.9% to 11% (add 3.1% × 21,433 × $10K estimated loyal LTV = $6.6M capacity)</li>
+<li><strong>Involvement penetration:</strong> Target increase from 24.3% to 30% (add 5.7% × 21,433 × $4K involvement premium = $4.9M capacity)</li>
+<li><strong>Contact conversion rate:</strong> Target increase from 32% to 38% via method optimization and training</li>
+<li><strong>Tier migration:</strong> Track % of Tier 2 moving to Tier 1 annually (target 10% = 229 donors = $840K incremental)</li>
+</ul>
+
+<p><strong>Re-analysis triggers:</strong></p>
+<ul>
+<li>Lapse rate exceeds 52% (3pp above baseline)</li>
+<li>Tier 1 retention drops below 60% (currently 67.9% active)</li>
+<li>Involvement-giving correlation weakens (Mann-Whitney U p > 0.05)</li>
+<li>Major campaign launch (changes giving patterns)</li>
+<li>12 months pass (annual re-analysis recommended)</li>
+</ul>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>This institution demonstrates classic nonprofit fundraising pathologies: donor churn exceeds acquisition, wealth screening consumes resources without results, and engagement infrastructure is underbuilt relative to its predictive power. The donor file is degrading — 49.1% lapsed, only 7.9% loyal — faster than current strategies can replace it.</p>
+
+<p>Three interventions dominate ROI: lapsed donor reactivation (20% recovery = $2M), Tier 2 alumni engagement (30% activation = $2.5M capacity gain), and strategic resource reallocation by segment tier (concentrating cultivation on Tiers 1-2 where returns are highest). Combined conservative impact: $6-8 million in incremental lifetime value capacity within 12-18 months, assuming moderate success rates.</p>
+
+<p>All findings are statistically robust with appropriate effect sizes. Involvement effect proven via multiple tests (Mann-Whitney U p < 0.001, two-way ANOVA p = 0.04, Cramér's V = 0.20). Wealth rating failure confirmed through correlation (r = 0.005), ANOVA (p = 0.54, η² = 0.003), and practical observation (high-wealth, low-giving cohort). Contact method effectiveness established via chi-square (p = 0.002).</p>
+
+<p>The pathway forward is clear: stop investing in wealth screening, redirect those resources to engagement programs, segment the file into strategic tiers with appropriate cultivation intensity, and systematically reactivate lapsed donors through low-cost campaigns. Execution matters more than strategy complexity — these are proven, straightforward interventions with documented track records across nonprofits.</p>
+
+<footer>
+<p>Analysis conducted by Barbora Šandová · Data & ML Engineer · Prague<br>
+Portfolio: <a href="#">barbarasandova.dev</a> · Email: <a href="#"><span class="__cf_email__" data-cfemail="b5ddd0d9d9daf5d7d4
